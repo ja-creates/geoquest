@@ -1,290 +1,706 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="GeoQuest – A premium interactive world map geography game. Test your knowledge of world countries!" />
-  <meta name="theme-color" content="#007AFF" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>GeoQuest – World Geography Game</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GeoQuest – World Geography Game</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --accent:#007AFF;--accent-h:#0066D6;--success:#34C759;--error:#FF3B30;
+  --warning:#FF9500;--bg:#F5F5F7;--card:#ffffff;--border:rgba(0,0,0,0.08);
+  --text:#1C1C1E;--text2:#48484A;--text3:#8E8E93;
+  --map-land:#C8D8E8;--map-hover:#9BBDD4;--map-ocean:#D6E8F5;
+  --map-correct:#34C759;--map-wrong:#FF3B30;--map-target:#007AFF;
+  --shadow:0 4px 20px rgba(0,0,0,0.08);--r:14px;--rf:999px;
+  --font:'DM Sans',-apple-system,sans-serif;--serif:'DM Serif Display',Georgia,serif;
+}
+[data-theme=dark]{
+  --bg:#0A0A0F;--card:#1C1C20;--border:rgba(255,255,255,0.09);
+  --text:#F2F2F7;--text2:#EBEBF5CC;--text3:#EBEBF599;
+  --map-land:#2C3E50;--map-hover:#3A5068;--map-ocean:#1A2535;
+  --shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+/* LOADING */
+#loading{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .3s}
+#loading.out{opacity:0;pointer-events:none}
+.ld-logo{animation:ld-spin 1.5s linear infinite}
+@keyframes ld-spin{to{transform:rotate(360deg)}}
+.ld-title{font-family:var(--serif);font-size:2rem;color:var(--text)}
+.ld-bar{width:180px;height:4px;background:var(--border);border-radius:var(--rf);overflow:hidden}
+.ld-fill{height:100%;width:0;background:var(--accent);transition:width .3s;border-radius:var(--rf)}
+/* APP */
+#app{display:none;flex-direction:column;height:100dvh}
+/* NAV */
+nav{height:60px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;position:relative}
+.nav-brand{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:1.3rem;color:var(--text)}
+.nav-stats{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rf);padding:4px 14px}
+.stat{display:flex;align-items:center;gap:6px}
+.stat-l{font-size:.68rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+.stat-v{font-size:.88rem;font-weight:700;color:var(--text);min-width:18px;text-align:center}
+.stat-v.bump{animation:bump .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bump{50%{transform:scale(1.5);color:var(--success)}}
+.nav-btns{display:flex;gap:6px}
+.icon-btn{width:36px;height:36px;border-radius:var(--rf);border:1px solid var(--border);background:var(--bg);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.icon-btn:hover{background:var(--card);color:var(--accent);transform:scale(1.06)}
+.prog-track{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--border)}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#5AC8FA);transition:width .5s;border-radius:var(--rf)}
+/* MAIN */
+main{flex:1;display:flex;flex-direction:column;padding:10px 14px 8px;gap:8px;min-height:0;overflow:hidden}
+/* PROMPT */
+.prompt{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:12px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;flex-shrink:0}
+.prompt::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),#5AC8FA)}
+.prompt-inner{display:flex;align-items:center;justify-content:space-between}
+.prompt-lbl{font-size:.65rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.prompt-name{font-family:var(--serif);font-size:clamp(1.3rem,4vw,1.9rem);color:var(--text);letter-spacing:-.02em;animation:slide-in .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slide-in{from{opacity:0;transform:translateY(6px) scale(.95)}}
+.prompt-hint{font-size:.75rem;color:var(--accent);font-weight:500;min-height:16px;margin-top:3px}
+.timer-wrap{position:relative;width:42px;height:42px;flex-shrink:0}
+.timer-ring{transform:rotate(-90deg)}
+.timer-bg{stroke:var(--border)}
+.timer-fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .3s}
+.timer-fg.warn{stroke:var(--warning)}
+.timer-fg.danger{stroke:var(--error)}
+.timer-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--text)}
+/* MAP */
+.map-wrap{flex:1;position:relative;border-radius:16px;overflow:hidden;background:var(--map-ocean);border:1px solid var(--border);min-height:0}
+.map-inner{width:100%;height:100%;overflow:hidden;cursor:grab;user-select:none}
+.map-inner:active{cursor:grabbing}
+#map-svg{width:100%;height:100%;transform-origin:center;will-change:transform}
+#map-svg path{fill:var(--map-land);stroke:rgba(255,255,255,.45);stroke-width:.5;cursor:pointer;transition:fill .15s}
+[data-theme=dark] #map-svg path{stroke:rgba(0,0,0,.3)}
+#map-svg path:hover{fill:var(--map-hover)}
+#map-svg path.correct{fill:var(--map-correct)!important;filter:drop-shadow(0 0 5px rgba(52,199,89,.7));animation:pop .45s cubic-bezier(.34,1.56,.64,1)}
+#map-svg path.wrong{fill:var(--map-wrong)!important;filter:drop-shadow(0 0 5px rgba(255,59,48,.7));animation:shake .35s ease}
+#map-svg path.target{fill:var(--map-target)!important;filter:drop-shadow(0 0 7px rgba(0,122,255,.8));animation:pulse 1s ease infinite}
+@keyframes pop{40%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes shake{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes pulse{50%{opacity:.6}}
+.map-ctrls{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px}
+.map-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s;line-height:1}
+.map-btn:hover{color:var(--accent);transform:scale(1.06)}
+/* TOAST */
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:11px 20px;display:flex;align-items:center;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,.12);opacity:0;pointer-events:none;z-index:50;white-space:nowrap;transition:opacity .15s,transform .15s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.toast.correct{border-color:var(--success);background:rgba(52,199,89,.1)}
+.toast.wrong{border-color:var(--error);background:rgba(255,59,48,.1)}
+.toast-icon{font-size:1.2rem}
+.toast-txt{font-size:.9rem;font-weight:600;color:var(--text)}
+/* FOOTER */
+footer{height:66px;flex-shrink:0;background:var(--card);border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:0 16px}
+.streak{display:flex;gap:5px}
+.dot{width:8px;height:8px;border-radius:var(--rf);background:var(--border);transition:background .2s,transform .2s}
+.dot.correct{background:var(--success);transform:scale(1.15)}
+.dot.wrong{background:var(--error)}
+.dot.cur{background:var(--accent);box-shadow:0 0 0 3px rgba(0,122,255,.2);animation:dot-p 1.2s ease infinite}
+@keyframes dot-p{50%{box-shadow:0 0 0 6px transparent}}
+.foot-row{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:var(--rf);border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:var(--font);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--card);color:var(--text)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(0,122,255,.3)}
+.btn-primary:hover{background:var(--accent-h);transform:translateY(-1px)}
+.btn-lg{padding:13px 28px;font-size:.95rem;border-radius:18px}
+.hs-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);border-radius:var(--rf);color:var(--warning);font-size:.76rem;font-weight:700}
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade-in .2s ease}
+@keyframes fade-in{from{opacity:0}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:30px 26px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:16px;animation:card-up .3s cubic-bezier(.34,1.56,.64,1);max-height:92dvh;overflow-y:auto}
+@keyframes card-up{from{opacity:0;transform:translateY(24px) scale(.96)}}
+.card-title{font-family:var(--serif);font-size:2rem;text-align:center;letter-spacing:-.02em;color:var(--text)}
+.card-sub{font-size:.88rem;color:var(--text2);text-align:center;line-height:1.6}
+.stats-row{display:flex;gap:20px;background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:14px 22px;width:100%;justify-content:center}
+.sbox{display:flex;flex-direction:column;align-items:center;gap:2px}
+.snum{font-family:var(--serif);font-size:1.6rem;color:var(--accent)}
+.slbl{font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.diff-lbl{font-size:.68rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.diff-row{display:flex;gap:8px;width:100%}
+.diff-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 6px;background:var(--bg);border:2px solid var(--border);border-radius:13px;cursor:pointer;transition:all .15s;font-family:var(--font)}
+.diff-btn.active{border-color:var(--accent);background:rgba(0,122,255,.07)}
+.diff-btn:hover:not(.active){border-color:rgba(0,0,0,.18)}
+.diff-icon{font-size:1.2rem}
+.diff-name{font-size:.8rem;font-weight:700;color:var(--text)}
+.diff-desc{font-size:.65rem;color:var(--text3)}
+.end-emoji{font-size:2.8rem;animation:ep .5s cubic-bezier(.34,1.56,.64,1) both .1s}
+@keyframes ep{from{opacity:0;transform:scale(.3) rotate(-20deg)}}
+.score-ring{position:relative;display:flex;align-items:center;justify-content:center;width:130px;height:130px}
+.ring-bg{stroke:var(--border)}
+.ring-fill{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1) .3s;transform:rotate(-90deg);transform-origin:65px 65px}
+.ring-txt{position:absolute;display:flex;align-items:baseline;gap:2px}
+.ring-big{font-family:var(--serif);font-size:2.4rem;color:var(--text)}
+.ring-of{font-size:.88rem;color:var(--text3);font-weight:500}
+.end-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
+.end-stat{background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:10px 13px;display:flex;flex-direction:column;gap:2px}
+.esl{font-size:.65rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.esv{font-family:var(--serif);font-size:1.4rem;color:var(--text)}
+.esv.c{color:var(--success)}.esv.w{color:var(--error)}
+.end-acts{display:flex;flex-direction:column;gap:8px;width:100%}
+.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:20px}
+.badge{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--rf);font-size:.7rem;font-weight:600;background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);color:var(--warning);animation:badge-pop .3s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes badge-pop{from{opacity:0;transform:scale(.7)}}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9998}
+@media(max-width:480px){
+  .nav-brand span:last-child{display:none}
+  nav{padding:0 10px}
+  .card{padding:22px 16px;gap:13px}
+  .diff-desc{display:none}
+  .stats-row{gap:14px;padding:12px 14px}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
 </head>
 <body>
 
-  <!-- ===================== LOADING SCREEN ===================== -->
-  <div id="loading-screen" class="loading-screen" role="status" aria-label="Loading GeoQuest">
-    <div class="loading-content">
-      <div class="loading-logo">
-        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
-          <circle cx="28" cy="28" r="28" fill="#007AFF" opacity="0.12"/>
-          <circle cx="28" cy="28" r="20" fill="#007AFF" opacity="0.2"/>
-          <path d="M14 28C14 20.268 20.268 14 28 14C35.732 14 42 20.268 42 28C42 35.732 35.732 42 28 42C20.268 42 14 35.732 14 28Z" fill="#007AFF"/>
-          <path d="M22 28C22 25.5 23 22 28 21C25 23 27 26 26 28C25 30 21.5 30.5 22 33C19.5 31.5 19.5 28 22 28Z" fill="white" opacity="0.9"/>
-          <path d="M32 22C34.5 23 36 25.5 35 28C33.5 26 31 27 30 29C29 31 30 34 28 35C27 32 29 30 28 28C27 26 28.5 23 32 22Z" fill="white" opacity="0.7"/>
-        </svg>
-      </div>
-      <h1 class="loading-title">GeoQuest</h1>
-      <p class="loading-subtitle">Preparing your world…</p>
-      <div class="loading-bar-track" aria-hidden="true">
-        <div class="loading-bar-fill" id="loading-bar"></div>
-      </div>
+<div id="loading">
+  <svg class="ld-logo" width="60" height="60" viewBox="0 0 50 50" fill="none">
+    <circle cx="25" cy="25" r="20" fill="#007AFF" opacity=".18"/>
+    <path d="M10 25a15 15 0 1 1 30 0 15 15 0 0 1-30 0z" fill="#007AFF"/>
+    <path d="M18 25c0-2 1-5 7-6-2 2 0 5-1 7s-4 3-3 6c-2-1-4-4-3-7z" fill="white" opacity=".9"/>
+    <path d="M30 18c2 1 4 4 3 7-1-2-4-1-5 1s0 5-2 6c-1-2 1-4 0-6s-1-5 4-8z" fill="white" opacity=".7"/>
+  </svg>
+  <div class="ld-title">GeoQuest</div>
+  <div class="ld-bar"><div class="ld-fill" id="ld-fill"></div></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<div id="app">
+  <nav>
+    <div class="nav-brand">
+      <svg width="24" height="24" viewBox="0 0 50 50" fill="none">
+        <path d="M10 25a15 15 0 1 1 30 0 15 15 0 0 1-30 0z" fill="#007AFF"/>
+        <path d="M18 25c0-2 1-5 7-6-2 2 0 5-1 7s-4 3-3 6c-2-1-4-4-3-7z" fill="white" opacity=".9"/>
+        <path d="M30 18c2 1 4 4 3 7-1-2-4-1-5 1s0 5-2 6c-1-2 1-4 0-6s-1-5 4-8z" fill="white" opacity=".7"/>
+      </svg>
+      <span>GeoQuest</span>
     </div>
-  </div>
-
-  <!-- ===================== CONFETTI CANVAS ===================== -->
-  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
-
-  <!-- ===================== APP WRAPPER ===================== -->
-  <div id="app" class="app" style="display:none">
-
-    <!-- ===== HEADER / NAV ===== -->
-    <header class="nav-bar" role="banner">
-      <div class="nav-inner">
-        <div class="nav-brand">
-          <svg width="28" height="28" viewBox="0 0 56 56" fill="none" aria-hidden="true" class="nav-logo">
-            <circle cx="28" cy="28" r="28" fill="#007AFF" opacity="0.15"/>
-            <path d="M14 28C14 20.268 20.268 14 28 14C35.732 14 42 20.268 42 28C42 35.732 35.732 42 28 42C20.268 42 14 35.732 14 28Z" fill="#007AFF"/>
-            <path d="M22 28C22 25.5 23 22 28 21C25 23 27 26 26 28C25 30 21.5 30.5 22 33C19.5 31.5 19.5 28 22 28Z" fill="white" opacity="0.9"/>
-            <path d="M32 22C34.5 23 36 25.5 35 28C33.5 26 31 27 30 29C29 31 30 34 28 35C27 32 29 30 28 28C27 26 28.5 23 32 22Z" fill="white" opacity="0.7"/>
-          </svg>
-          <span class="nav-title">GeoQuest</span>
-        </div>
-
-        <div class="nav-stats" role="status" aria-live="polite" aria-label="Game stats">
-          <div class="stat-chip" id="score-chip">
-            <span class="stat-label">Score</span>
-            <span class="stat-value" id="nav-score">0</span>
-          </div>
-          <div class="stat-divider" aria-hidden="true"></div>
-          <div class="stat-chip">
-            <span class="stat-label">Round</span>
-            <span class="stat-value" id="nav-round">1/10</span>
-          </div>
-        </div>
-
-        <div class="nav-controls">
-          <button class="icon-btn" id="sound-toggle" aria-label="Toggle sound" aria-pressed="true" title="Toggle sound">
-            <svg id="sound-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
-          </button>
-          <button class="icon-btn" id="dark-mode-toggle" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
-            <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="5"/>
-              <line x1="12" y1="1" x2="12" y2="3"/>
-              <line x1="12" y1="21" x2="12" y2="23"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="1" y1="12" x2="3" y2="12"/>
-              <line x1="21" y1="12" x2="23" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10" aria-label="Game progress" id="progress-bar-container">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
-    </header>
-
-    <!-- ===== MAIN CONTENT ===== -->
-    <main class="main-content" role="main">
-
-      <!-- Difficulty Selector (shown on game start) -->
-      <div class="difficulty-bar" id="difficulty-bar" role="group" aria-label="Select difficulty">
-        <button class="diff-btn active" data-difficulty="easy" aria-pressed="true">Easy</button>
-        <button class="diff-btn" data-difficulty="medium" aria-pressed="false">Medium</button>
-        <button class="diff-btn" data-difficulty="hard" aria-pressed="false">Hard</button>
-      </div>
-
-      <!-- Question Prompt Card -->
-      <div class="prompt-card" role="status" aria-live="assertive" aria-atomic="true" id="prompt-card">
-        <div class="prompt-inner">
-          <p class="prompt-label">Find this country on the map</p>
-          <h2 class="prompt-country" id="prompt-country">–</h2>
-          <div class="timer-ring-wrap" aria-hidden="true">
-            <svg class="timer-ring" viewBox="0 0 44 44" width="44" height="44">
-              <circle class="timer-ring-bg" cx="22" cy="22" r="18" fill="none" stroke-width="3"/>
-              <circle class="timer-ring-fg" id="timer-ring-fg" cx="22" cy="22" r="18" fill="none" stroke-width="3"
-                stroke-dasharray="113.1" stroke-dashoffset="0"/>
-            </svg>
-            <span class="timer-text" id="timer-text">15</span>
-          </div>
-        </div>
-        <div class="prompt-hint" id="prompt-hint" aria-live="polite"></div>
-      </div>
-
-      <!-- Feedback Toast -->
-      <div class="feedback-toast" id="feedback-toast" role="alert" aria-live="polite" aria-atomic="true">
-        <span class="feedback-icon" id="feedback-icon" aria-hidden="true"></span>
-        <span class="feedback-text" id="feedback-text"></span>
-      </div>
-
-      <!-- Map Container -->
-      <div class="map-container" id="map-container">
-        <div class="map-wrapper" id="map-wrapper">
-          <div id="map-svg-container" role="application" aria-label="Interactive world map. Click a country to answer." tabindex="0">
-            <!-- SVG injected by JS -->
-          </div>
-        </div>
-        <!-- Map Controls -->
-        <div class="map-controls" aria-label="Map controls">
-          <button class="map-ctrl-btn" id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button>
-          <button class="map-ctrl-btn" id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
-          <button class="map-ctrl-btn" id="zoom-reset" aria-label="Reset zoom" title="Reset zoom">⊙</button>
-        </div>
-      </div>
-
-      <!-- Country Info Popup -->
-      <div class="country-popup" id="country-popup" role="tooltip" aria-hidden="true">
-        <div class="country-popup-flag" id="popup-flag" aria-hidden="true"></div>
-        <div class="country-popup-info">
-          <p class="country-popup-name" id="popup-name">–</p>
-          <p class="country-popup-capital" id="popup-capital">–</p>
-        </div>
-      </div>
-
-    </main>
-
-    <!-- ===== BOTTOM PANEL ===== -->
-    <footer class="bottom-panel" role="contentinfo">
-      <div class="streak-row" id="streak-row" aria-label="Answer streak">
-        <!-- Streak dots injected by JS -->
-      </div>
-      <div class="bottom-actions">
-        <button class="btn btn-ghost" id="skip-btn" aria-label="Skip this country">Skip</button>
-        <div class="high-score-chip" aria-label="High score">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <span id="high-score-value">0</span>
-        </div>
-        <button class="btn btn-ghost btn-sm" id="hint-btn" aria-label="Get a hint">Hint</button>
-      </div>
-    </footer>
-
-  </div><!-- /app -->
-
-  <!-- ===================== START SCREEN ===================== -->
-  <div id="start-screen" class="overlay-screen" role="dialog" aria-modal="true" aria-labelledby="start-title" style="display:none">
-    <div class="overlay-card">
-      <div class="overlay-logo">
-        <svg width="72" height="72" viewBox="0 0 56 56" fill="none" aria-hidden="true">
-          <circle cx="28" cy="28" r="28" fill="#007AFF" opacity="0.12"/>
-          <circle cx="28" cy="28" r="20" fill="#007AFF" opacity="0.2"/>
-          <path d="M14 28C14 20.268 20.268 14 28 14C35.732 14 42 20.268 42 28C42 35.732 35.732 42 28 42C20.268 42 14 35.732 14 28Z" fill="#007AFF"/>
-          <path d="M22 28C22 25.5 23 22 28 21C25 23 27 26 26 28C25 30 21.5 30.5 22 33C19.5 31.5 19.5 28 22 28Z" fill="white" opacity="0.9"/>
-          <path d="M32 22C34.5 23 36 25.5 35 28C33.5 26 31 27 30 29C29 31 30 34 28 35C27 32 29 30 28 28C27 26 28.5 23 32 22Z" fill="white" opacity="0.7"/>
-        </svg>
-      </div>
-      <h1 id="start-title" class="overlay-title">GeoQuest</h1>
-      <p class="overlay-subtitle">How well do you know the world?<br/>Click countries on the map to prove it.</p>
-
-      <div class="start-stats-row">
-        <div class="start-stat">
-          <span class="start-stat-num">196</span>
-          <span class="start-stat-label">Countries</span>
-        </div>
-        <div class="start-stat">
-          <span class="start-stat-num">10</span>
-          <span class="start-stat-label">Rounds</span>
-        </div>
-        <div class="start-stat">
-          <span class="start-stat-num" id="hs-display">0</span>
-          <span class="start-stat-label">High Score</span>
-        </div>
-      </div>
-
-      <div class="difficulty-select-label">Choose difficulty</div>
-      <div class="difficulty-row" role="group" aria-label="Difficulty selection">
-        <button class="diff-select-btn active" data-diff="easy" aria-pressed="true">
-          <span class="diff-icon">🌍</span>
-          <span class="diff-name">Easy</span>
-          <span class="diff-desc">Major countries</span>
-        </button>
-        <button class="diff-select-btn" data-diff="medium" aria-pressed="false">
-          <span class="diff-icon">🧭</span>
-          <span class="diff-name">Medium</span>
-          <span class="diff-desc">More countries</span>
-        </button>
-        <button class="diff-select-btn" data-diff="hard" aria-pressed="false">
-          <span class="diff-icon">🔬</span>
-          <span class="diff-name">Hard</span>
-          <span class="diff-desc">All regions</span>
-        </button>
-      </div>
-
-      <button class="btn btn-primary btn-lg" id="start-btn" aria-label="Start game">
-        Start Game
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
+    <div class="nav-stats">
+      <div class="stat"><span class="stat-l">Score</span><span class="stat-v" id="nav-score">0</span></div>
+      <div style="width:1px;height:14px;background:var(--border)"></div>
+      <div class="stat"><span class="stat-l">Round</span><span class="stat-v" id="nav-round">1/10</span></div>
+    </div>
+    <div class="nav-btns">
+      <button class="icon-btn" id="snd-btn" title="Toggle sound" aria-label="Toggle sound">
+        <svg id="snd-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>
-
-      <p class="overlay-hint">Use keyboard ← → to navigate • Tab to focus</p>
+      <button class="icon-btn" id="theme-btn" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <svg id="theme-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+      </button>
     </div>
-  </div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+  </nav>
 
-  <!-- ===================== END SCREEN ===================== -->
-  <div id="end-screen" class="overlay-screen" role="dialog" aria-modal="true" aria-labelledby="end-title" style="display:none">
-    <div class="overlay-card">
-      <div class="end-emoji" id="end-emoji" aria-hidden="true">🌍</div>
-      <h2 id="end-title" class="overlay-title" id="result-title">Game Over</h2>
-      <p class="overlay-subtitle" id="result-message">Great attempt!</p>
-
-      <div class="score-display">
-        <div class="score-circle">
-          <svg viewBox="0 0 120 120" width="140" height="140" aria-hidden="true">
-            <circle class="score-circle-bg" cx="60" cy="60" r="52" fill="none" stroke-width="8"/>
-            <circle class="score-circle-fill" id="score-circle-fill" cx="60" cy="60" r="52" fill="none" stroke-width="8"
-              stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+  <main>
+    <div class="prompt">
+      <div class="prompt-inner">
+        <div>
+          <div class="prompt-lbl">Find this country</div>
+          <div class="prompt-name" id="prompt-name">–</div>
+          <div class="prompt-hint" id="prompt-hint"></div>
+        </div>
+        <div class="timer-wrap">
+          <svg class="timer-ring" viewBox="0 0 42 42" width="42" height="42">
+            <circle class="timer-bg" cx="21" cy="21" r="17" fill="none" stroke-width="3"/>
+            <circle class="timer-fg" id="timer-fg" cx="21" cy="21" r="17" fill="none" stroke-width="3" stroke-dasharray="106.8" stroke-dashoffset="0"/>
           </svg>
-          <div class="score-circle-text">
-            <span class="score-big" id="final-score">0</span>
-            <span class="score-of">/10</span>
-          </div>
+          <div class="timer-txt" id="timer-txt">15</div>
         </div>
-      </div>
-
-      <div class="end-stats-grid">
-        <div class="end-stat">
-          <span class="end-stat-label">Correct</span>
-          <span class="end-stat-val correct" id="stat-correct">0</span>
-        </div>
-        <div class="end-stat">
-          <span class="end-stat-label">Wrong</span>
-          <span class="end-stat-val wrong" id="stat-wrong">0</span>
-        </div>
-        <div class="end-stat">
-          <span class="end-stat-label">High Score</span>
-          <span class="end-stat-val" id="stat-highscore">0</span>
-        </div>
-        <div class="end-stat">
-          <span class="end-stat-label">Accuracy</span>
-          <span class="end-stat-val" id="stat-accuracy">0%</span>
-        </div>
-      </div>
-
-      <div class="achievement-row" id="achievement-row" aria-label="Achievements earned"></div>
-
-      <div class="end-actions">
-        <button class="btn btn-primary btn-lg" id="play-again-btn" aria-label="Play again">
-          Play Again
-        </button>
-        <button class="btn btn-ghost" id="share-btn" aria-label="Share result">
-          Share Score
-        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Scripts -->
-  <script src="map-data.js"></script>
-  <script src="script.js"></script>
+    <div class="map-wrap">
+      <div class="map-inner" id="map-inner">
+        <svg id="map-svg" viewBox="0 0 1010 500" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="map-ctrls">
+        <button class="map-btn" id="z-in">+</button>
+        <button class="map-btn" id="z-out">−</button>
+        <button class="map-btn" id="z-reset">⊙</button>
+      </div>
+      <div class="toast" id="toast">
+        <span class="toast-icon" id="toast-icon"></span>
+        <span class="toast-txt" id="toast-txt"></span>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="streak" id="streak"></div>
+    <div class="foot-row">
+      <button class="btn" id="skip-btn">Skip</button>
+      <div class="hs-chip">⭐ <span id="hs-val">0</span></div>
+      <button class="btn" id="hint-btn">Hint 💡</button>
+    </div>
+  </footer>
+</div>
+
+<!-- START -->
+<div class="overlay" id="start-screen">
+  <div class="card">
+    <svg width="56" height="56" viewBox="0 0 50 50" fill="none">
+      <circle cx="25" cy="25" r="25" fill="#007AFF" opacity=".12"/>
+      <path d="M10 25a15 15 0 1 1 30 0 15 15 0 0 1-30 0z" fill="#007AFF"/>
+      <path d="M18 25c0-2 1-5 7-6-2 2 0 5-1 7s-4 3-3 6c-2-1-4-4-3-7z" fill="white" opacity=".9"/>
+      <path d="M30 18c2 1 4 4 3 7-1-2-4-1-5 1s0 5-2 6c-1-2 1-4 0-6s-1-5 4-8z" fill="white" opacity=".7"/>
+    </svg>
+    <div class="card-title">GeoQuest</div>
+    <div class="card-sub">How well do you know the world?<br>Click countries on the map to prove it.</div>
+    <div class="stats-row">
+      <div class="sbox"><span class="snum">60</span><span class="slbl">Countries</span></div>
+      <div class="sbox"><span class="snum">10</span><span class="slbl">Rounds</span></div>
+      <div class="sbox"><span class="snum" id="hs-display">0</span><span class="slbl">Best</span></div>
+    </div>
+    <div class="diff-lbl">Choose difficulty</div>
+    <div class="diff-row" id="diff-row">
+      <button class="diff-btn active" data-diff="easy"><span class="diff-icon">🌍</span><span class="diff-name">Easy</span><span class="diff-desc">Major nations</span></button>
+      <button class="diff-btn" data-diff="medium"><span class="diff-icon">🧭</span><span class="diff-name">Medium</span><span class="diff-desc">More countries</span></button>
+      <button class="diff-btn" data-diff="hard"><span class="diff-icon">🔬</span><span class="diff-name">Hard</span><span class="diff-desc">All regions</span></button>
+    </div>
+    <button class="btn btn-primary btn-lg" id="start-btn">Start Game ▶</button>
+    <div style="font-size:.68rem;color:var(--text3)">H = hint · Esc = skip</div>
+  </div>
+</div>
+
+<!-- END -->
+<div class="overlay" id="end-screen" style="display:none">
+  <div class="card">
+    <div class="end-emoji" id="end-emoji">🌍</div>
+    <div class="card-title" id="end-title">Game Over</div>
+    <div class="card-sub" id="end-msg">Great attempt!</div>
+    <div class="score-ring">
+      <svg viewBox="0 0 130 130" width="130" height="130">
+        <circle class="ring-bg" cx="65" cy="65" r="52" fill="none" stroke-width="8"/>
+        <circle class="ring-fill" id="ring-fill" cx="65" cy="65" r="52" fill="none" stroke-width="8" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      </svg>
+      <div class="ring-txt"><span class="ring-big" id="final-score">0</span><span class="ring-of">/10</span></div>
+    </div>
+    <div class="end-grid">
+      <div class="end-stat"><span class="esl">Correct</span><span class="esv c" id="e-correct">0</span></div>
+      <div class="end-stat"><span class="esl">Wrong</span><span class="esv w" id="e-wrong">0</span></div>
+      <div class="end-stat"><span class="esl">Best Score</span><span class="esv" id="e-hs">0</span></div>
+      <div class="end-stat"><span class="esl">Accuracy</span><span class="esv" id="e-acc">0%</span></div>
+    </div>
+    <div class="badges" id="badges"></div>
+    <div class="end-acts">
+      <button class="btn btn-primary btn-lg" id="again-btn">Play Again</button>
+      <button class="btn btn-lg" id="share-btn">Share Score</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ── DATA ──────────────────────────────────────────────────────
+const COUNTRIES=[
+  {id:'BR',name:'Brazil',capital:'Brasília',flag:'🇧🇷',diff:'easy',hints:['Largest in South America','Amazon rainforest']},
+  {id:'US',name:'United States',capital:'Washington D.C.',flag:'🇺🇸',diff:'easy',hints:['50 states','Borders Canada & Mexico']},
+  {id:'CA',name:'Canada',capital:'Ottawa',flag:'🇨🇦',diff:'easy',hints:['2nd largest by area','Known for maple syrup']},
+  {id:'RU',name:'Russia',capital:'Moscow',flag:'🇷🇺',diff:'easy',hints:['Largest country in world','Spans 11 time zones']},
+  {id:'CN',name:'China',capital:'Beijing',flag:'🇨🇳',diff:'easy',hints:['Most populous country','Has the Great Wall']},
+  {id:'AU',name:'Australia',capital:'Canberra',flag:'🇦🇺',diff:'easy',hints:['Continent and country','Home to kangaroos']},
+  {id:'IN',name:'India',capital:'New Delhi',flag:'🇮🇳',diff:'easy',hints:['2nd most populous','Birthplace of yoga']},
+  {id:'AR',name:'Argentina',capital:'Buenos Aires',flag:'🇦🇷',diff:'easy',hints:['2nd largest in S. America','Famous for tango']},
+  {id:'MX',name:'Mexico',capital:'Mexico City',flag:'🇲🇽',diff:'easy',hints:['Borders US to north','Home of tacos']},
+  {id:'FR',name:'France',capital:'Paris',flag:'🇫🇷',diff:'easy',hints:['Home of Eiffel Tower','Famous for wine']},
+  {id:'DE',name:'Germany',capital:'Berlin',flag:'🇩🇪',diff:'easy',hints:['Largest EU economy','Known for Oktoberfest']},
+  {id:'JP',name:'Japan',capital:'Tokyo',flag:'🇯🇵',diff:'easy',hints:['Island nation in E. Asia','Famous for sushi']},
+  {id:'EG',name:'Egypt',capital:'Cairo',flag:'🇪🇬',diff:'easy',hints:['Home of pyramids','Has the Nile River']},
+  {id:'ZA',name:'South Africa',capital:'Pretoria',flag:'🇿🇦',diff:'easy',hints:['Southernmost in Africa','Three capitals']},
+  {id:'NG',name:'Nigeria',capital:'Abuja',flag:'🇳🇬',diff:'easy',hints:['Most populous in Africa','Largest African economy']},
+  {id:'IT',name:'Italy',capital:'Rome',flag:'🇮🇹',diff:'easy',hints:['Shaped like a boot','Home of pizza & pasta']},
+  {id:'ES',name:'Spain',capital:'Madrid',flag:'🇪🇸',diff:'easy',hints:['Iberian Peninsula','Famous for flamenco']},
+  {id:'GB',name:'United Kingdom',capital:'London',flag:'🇬🇧',diff:'easy',hints:['Island nation NW Europe','Home of Big Ben']},
+  {id:'SA',name:'Saudi Arabia',capital:'Riyadh',flag:'🇸🇦',diff:'easy',hints:['Largest in Middle East','Top oil exporter']},
+  {id:'ID',name:'Indonesia',capital:'Jakarta',flag:'🇮🇩',diff:'easy',hints:["World's largest archipelago",'Home to Bali']},
+  {id:'CO',name:'Colombia',capital:'Bogotá',flag:'🇨🇴',diff:'medium',hints:['Named after Columbus','Top coffee producer']},
+  {id:'PE',name:'Peru',capital:'Lima',flag:'🇵🇪',diff:'medium',hints:['Home of Machu Picchu','Amazon starts here']},
+  {id:'VE',name:'Venezuela',capital:'Caracas',flag:'🇻🇪',diff:'medium',hints:['Largest oil reserves','Angel Falls is here']},
+  {id:'CL',name:'Chile',capital:'Santiago',flag:'🇨🇱',diff:'medium',hints:['Long thin country','Shares Andes with Argentina']},
+  {id:'TR',name:'Turkey',capital:'Ankara',flag:'🇹🇷',diff:'medium',hints:['Spans two continents','Istanbul is largest city']},
+  {id:'IR',name:'Iran',capital:'Tehran',flag:'🇮🇷',diff:'medium',hints:['Ancient Persian Empire','Borders Iraq & Afghanistan']},
+  {id:'PK',name:'Pakistan',capital:'Islamabad',flag:'🇵🇰',diff:'medium',hints:['5th most populous','K2 mountain is here']},
+  {id:'UA',name:'Ukraine',capital:'Kyiv',flag:'🇺🇦',diff:'medium',hints:['Largest entirely in Europe','Famous for sunflowers']},
+  {id:'PL',name:'Poland',capital:'Warsaw',flag:'🇵🇱',diff:'medium',hints:['Largest in Central Europe','Borders Germany & Russia']},
+  {id:'ET',name:'Ethiopia',capital:'Addis Ababa',flag:'🇪🇹',diff:'medium',hints:['Most populous landlocked','Origin of coffee']},
+  {id:'KE',name:'Kenya',capital:'Nairobi',flag:'🇰🇪',diff:'medium',hints:['Famous for safari','Straddles the equator']},
+  {id:'TZ',name:'Tanzania',capital:'Dodoma',flag:'🇹🇿',diff:'medium',hints:['Mt. Kilimanjaro is here','Zanzibar island']},
+  {id:'MA',name:'Morocco',capital:'Rabat',flag:'🇲🇦',diff:'medium',hints:['Northernmost in Africa','Borders Sahara desert']},
+  {id:'GH',name:'Ghana',capital:'Accra',flag:'🇬🇭',diff:'medium',hints:['1st independent sub-Saharan','Famous cacao producer']},
+  {id:'SE',name:'Sweden',capital:'Stockholm',flag:'🇸🇪',diff:'medium',hints:['Scandinavia','Land of IKEA & ABBA']},
+  {id:'NO',name:'Norway',capital:'Oslo',flag:'🇳🇴',diff:'medium',hints:['Famous for fjords','Midnight sun in summer']},
+  {id:'VN',name:'Vietnam',capital:'Hanoi',flag:'🇻🇳',diff:'medium',hints:['S-shaped SE Asian country','Famous for Phở']},
+  {id:'TH',name:'Thailand',capital:'Bangkok',flag:'🇹🇭',diff:'medium',hints:['Land of Smiles','Never colonized in SE Asia']},
+  {id:'KR',name:'South Korea',capital:'Seoul',flag:'🇰🇷',diff:'medium',hints:['Korean Peninsula south','K-pop originates here']},
+  {id:'MY',name:'Malaysia',capital:'Kuala Lumpur',flag:'🇲🇾',diff:'medium',hints:['SE Asia + Borneo','Petronas Towers']},
+  {id:'BO',name:'Bolivia',capital:'Sucre',flag:'🇧🇴',diff:'hard',hints:['Landlocked in S. America',"World's highest capital"]},
+  {id:'PY',name:'Paraguay',capital:'Asunción',flag:'🇵🇾',diff:'hard',hints:['Landlocked between BR & AR','Guaraní co-official language']},
+  {id:'UY',name:'Uruguay',capital:'Montevideo',flag:'🇺🇾',diff:'hard',hints:['Smallest Spanish-speaking S.Am','Borders Brazil & Argentina']},
+  {id:'EC',name:'Ecuador',capital:'Quito',flag:'🇪🇨',diff:'hard',hints:['Named after the equator','Galápagos Islands']},
+  {id:'SD',name:'Sudan',capital:'Khartoum',flag:'🇸🇩',diff:'hard',hints:['Nile runs through it','Borders Egypt to north']},
+  {id:'AO',name:'Angola',capital:'Luanda',flag:'🇦🇴',diff:'hard',hints:['Portuguese-speaking','Atlantic coast S. Africa']},
+  {id:'MZ',name:'Mozambique',capital:'Maputo',flag:'🇲🇿',diff:'hard',hints:['Portuguese-speaking','East coast S. Africa']},
+  {id:'ZM',name:'Zambia',capital:'Lusaka',flag:'🇿🇲',diff:'hard',hints:['Victoria Falls is here','Landlocked S. Africa']},
+  {id:'RO',name:'Romania',capital:'Bucharest',flag:'🇷🇴',diff:'hard',hints:["Dracula's Transylvania",'Borders Ukraine & Bulgaria']},
+  {id:'HU',name:'Hungary',capital:'Budapest',flag:'🇭🇺',diff:'hard',hints:['On the Danube River','Landlocked Central Europe']},
+  {id:'KZ',name:'Kazakhstan',capital:'Astana',flag:'🇰🇿',diff:'hard',hints:['Largest landlocked country','9th largest overall']},
+  {id:'MM',name:'Myanmar',capital:'Naypyidaw',flag:'🇲🇲',diff:'hard',hints:['Formerly Burma','Borders India & China']},
+  {id:'NP',name:'Nepal',capital:'Kathmandu',flag:'🇳🇵',diff:'hard',hints:['Home of Mt. Everest','Between India & China']},
+  {id:'AF',name:'Afghanistan',capital:'Kabul',flag:'🇦🇫',diff:'hard',hints:['Landlocked Central/S. Asia','Borders Pakistan & Iran']},
+  {id:'NZ',name:'New Zealand',capital:'Wellington',flag:'🇳🇿',diff:'hard',hints:['Two main Pacific islands','Land of the Kiwi']},
+  {id:'IQ',name:'Iraq',capital:'Baghdad',flag:'🇮🇶',diff:'hard',hints:['Ancient Mesopotamia','Tigris & Euphrates rivers']},
+  {id:'FI',name:'Finland',capital:'Helsinki',flag:'🇫🇮',diff:'hard',hints:['Land of thousand lakes','Borders Russia & Sweden']},
+  {id:'CZ',name:'Czech Republic',capital:'Prague',flag:'🇨🇿',diff:'hard',hints:['Also called Czechia','Landlocked Central Europe']},
+  {id:'UZ',name:'Uzbekistan',capital:'Tashkent',flag:'🇺🇿',diff:'hard',hints:['Doubly landlocked','Ancient Silk Road cities']},
+  {id:'SY',name:'Syria',capital:'Damascus',flag:'🇸🇾',diff:'hard',hints:['One of oldest cities','Borders Turkey & Iraq']},
+];
+const CMAP=new Map(COUNTRIES.map(c=>[c.id,c]));
+
+// ── SVG PATHS ─────────────────────────────────────────────────
+const X=l=>((l+180)/360*1010).toFixed(1);
+const Y=l=>((90-l)/180*500).toFixed(1);
+const P=pts=>'M'+pts.map(([lo,la])=>X(lo)+','+Y(la)).join('L')+'Z';
+const PATHS=[
+  ['US',P([[-124,49],[-96,49],[-84,46],[-83,42],[-76,44],[-67,47],[-67,45],[-71,41],[-75,38],[-76,35],[-81,31],[-82,29],[-87,30],[-90,29],[-94,30],[-97,26],[-97,28],[-101,26],[-104,29],[-111,31],[-117,32],[-120,34],[-124,41]])],
+  ['CA',P([[-141,70],[-60,70],[-55,47],[-67,45],[-71,41],[-76,44],[-83,42],[-84,46],[-96,49],[-124,49],[-136,60],[-141,60]])],
+  ['MX',P([[-117,32],[-97,26],[-97,22],[-90,18],[-87,16],[-87,21],[-90,21],[-93,19],[-95,19],[-99,22],[-101,20],[-105,21],[-107,24],[-110,28],[-114,31]])],
+  ['BR',P([[-34,-5],[-35,-10],[-39,-15],[-40,-20],[-43,-23],[-48,-26],[-51,-30],[-53,-33],[-56,-33],[-58,-30],[-57,-20],[-60,-15],[-60,-5],[-55,2],[-51,4],[-50,2],[-46,0],[-44,2],[-40,0],[-38,0],[-35,-5]])],
+  ['AR',P([[-68,-22],[-65,-22],[-62,-22],[-58,-20],[-57,-20],[-56,-33],[-53,-33],[-65,-55],[-68,-55],[-70,-52],[-72,-45],[-72,-42],[-70,-38],[-68,-35],[-68,-30],[-68,-25]])],
+  ['CO',P([[-77,8],[-72,12],[-67,12],[-67,6],[-67,2],[-70,2],[-70,-4],[-75,-1],[-77,0],[-77,4],[-80,8]])],
+  ['VE',P([[-73,12],[-63,10],[-60,8],[-61,6],[-64,4],[-67,6],[-67,12],[-72,12]])],
+  ['PE',P([[-81,-2],[-75,-1],[-70,-4],[-70,-11],[-68,-14],[-70,-18],[-75,-15],[-80,-9]])],
+  ['BO',P([[-68,-14],[-64,-11],[-60,-15],[-57,-20],[-62,-22],[-65,-22],[-68,-22],[-68,-18],[-70,-18]])],
+  ['CL',P([[-68,-18],[-70,-18],[-72,-42],[-70,-52],[-68,-55],[-65,-55],[-68,-50],[-70,-45],[-70,-42],[-70,-38],[-68,-35],[-68,-30],[-68,-25],[-68,-22]])],
+  ['PY',P([[-58,-20],[-57,-20],[-62,-22],[-65,-22],[-64,-20],[-61,-20]])],
+  ['UY',P([[-53,-33],[-56,-33],[-58,-30],[-57,-25]])],
+  ['EC',P([[-80,-3],[-75,-1],[-75,-5],[-78,-5]])],
+  ['GB',P([[-5,50],[0,51],[2,52],[0,58],[-3,59],[-6,58],[-5,52],[-4,50]])],
+  ['FR',P([[2,51],[8,48],[8,44],[3,43],[-2,44],[-5,48],[-2,51]])],
+  ['ES',P([[-9,44],[3,43],[3,38],[0,36],[-6,36],[-9,37],[-9,44]])],
+  ['DE',P([[6,51],[15,51],[15,48],[12,47],[8,48],[8,51]])],
+  ['IT',P([[7,44],[15,48],[16,42],[14,38],[16,39],[15,37],[12,38],[9,41]])],
+  ['PL',P([[14,51],[24,51],[24,49],[23,52],[14,51]])],
+  ['UA',P([[22,52],[37,52],[37,46],[31,46],[28,45],[24,46],[22,49]])],
+  ['RO',P([[22,48],[30,48],[30,44],[25,44],[22,46]])],
+  ['CZ',P([[12,51],[18,51],[18,49],[12,49]])],
+  ['HU',P([[16,48],[22,48],[22,46],[17,45]])],
+  ['SE',P([[11,56],[24,68],[28,70],[24,70],[16,70],[12,58]])],
+  ['NO',P([[4,58],[12,58],[28,70],[28,72],[8,72],[5,62]])],
+  ['FI',P([[24,70],[28,70],[30,70],[30,64],[25,60],[24,64]])],
+  ['RU',P([[30,70],[60,72],[100,72],[180,72],[180,50],[140,46],[130,42],[60,40],[40,45],[28,52]])],
+  ['EG',P([[25,22],[34,22],[35,30],[32,32],[28,32],[25,30]])],
+  ['NG',P([[3,7],[14,12],[15,11],[14,8],[8,4],[3,6]])],
+  ['ZA',P([[17,-29],[32,-29],[33,-24],[32,-22],[30,-18],[28,-15],[25,-22],[22,-28],[17,-34]])],
+  ['ET',P([[36,15],[42,12],[44,12],[46,10],[42,8],[38,6],[34,8],[33,12]])],
+  ['KE',P([[34,4],[42,4],[41,0],[37,-4],[34,-2],[33,2]])],
+  ['TZ',P([[34,-2],[40,-2],[40,-10],[38,-10],[36,-8],[34,-4]])],
+  ['MA',P([[-6,36],[0,36],[-2,34],[-2,30],[-6,30],[-13,28],[-13,32]])],
+  ['GH',P([[0,11],[2,11],[3,6],[1,4],[-1,5]])],
+  ['SD',P([[22,22],[38,22],[36,12],[34,12],[33,14],[32,12],[28,12],[24,16]])],
+  ['AO',P([[12,-6],[24,-6],[24,-18],[18,-22],[14,-18],[12,-10]])],
+  ['MZ',P([[32,-10],[40,-10],[36,-18],[35,-26],[32,-26],[30,-22],[32,-18]])],
+  ['ZM',P([[22,-8],[32,-8],[32,-18],[28,-18],[22,-18]])],
+  ['CN',P([[80,40],[122,40],[128,48],[108,54],[80,54]])],
+  ['IN',P([[68,36],[78,36],[97,30],[97,8],[80,8],[70,22],[68,24]])],
+  ['SA',P([[37,30],[55,22],[60,18],[50,14],[42,12],[37,22]])],
+  ['IR',P([[44,39],[60,40],[62,36],[60,26],[56,22],[48,22],[45,30]])],
+  ['IQ',P([[39,37],[48,37],[48,30],[46,28],[42,28],[38,34]])],
+  ['SY',P([[36,37],[42,37],[42,34],[38,32],[36,34]])],
+  ['TR',P([[26,42],[44,42],[40,36],[36,36],[28,38],[26,40]])],
+  ['PK',P([[62,36],[74,36],[74,24],[68,23],[64,23],[62,30]])],
+  ['AF',P([[60,38],[75,38],[74,36],[74,30],[68,30],[62,36]])],
+  ['KZ',P([[50,52],[82,52],[80,42],[60,40],[52,44]])],
+  ['UZ',P([[56,42],[70,42],[68,40],[64,38],[58,38],[56,40]])],
+  ['NP',P([[80,30],[88,28],[82,26],[80,28]])],
+  ['VN',P([[102,22],[108,22],[108,16],[106,10],[104,10],[102,14]])],
+  ['TH',P([[98,20],[102,22],[102,14],[100,6],[98,6]])],
+  ['MY',P([[100,6],[108,6],[118,6],[118,4],[104,2],[100,4]])],
+  ['ID',P([[96,6],[108,6],[140,0],[120,-8],[106,-8],[96,0]])],
+  ['JP',P([[128,44],[142,44],[142,32],[134,32],[128,38]])],
+  ['KR',P([[126,38],[130,38],[130,34],[126,34]])],
+  ['MM',P([[92,28],[100,28],[100,16],[96,14],[94,18],[92,24]])],
+  ['AU',P([[114,-22],[136,-16],[154,-26],[152,-38],[130,-38],[116,-34]])],
+  ['NZ',P([[166,-34],[178,-38],[172,-46],[168,-44],[166,-40]])],
+];
+
+// ── STORAGE ──────────────────────────────────────────────────
+const S={
+  g:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},
+  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+};
+const hs=()=>S.g('gq_hs',0);
+const setHs=n=>S.s('gq_hs',n);
+const getSnd=()=>S.g('gq_snd',true);
+const setSnd=v=>S.s('gq_snd',v);
+const getTheme=()=>S.g('gq_theme','light');
+const setTheme=t=>S.s('gq_theme',t);
+
+// ── SOUND ──────────────────────────────────────────────────
+let sndOn=getSnd(),audioCtx=null;
+const ac=()=>{if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch{}return audioCtx};
+const playTone=(freqs,type='sine',dur=.15,vol=.14)=>{
+  if(!sndOn)return;const c=ac();if(!c)return;const t=c.currentTime;
+  freqs.forEach((f,i)=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);o.type=type;
+    o.frequency.setValueAtTime(f,t+i*.06);
+    g.gain.setValueAtTime(vol,t+i*.06);
+    g.gain.exponentialRampToValueAtTime(.001,t+i*.06+dur);
+    o.start(t+i*.06);o.stop(t+i*.06+dur+.05);
+  });
+};
+const Snd={
+  correct:()=>playTone([523,659,784],'triangle',.2,.17),
+  wrong:()=>playTone([330,277],'sawtooth',.18,.12),
+  click:()=>playTone([880],'sine',.06,.07),
+  start:()=>playTone([262,330,392,523],'triangle',.18,.14),
+  victory:()=>playTone([523,659,784,1047],'triangle',.25,.18),
+  tick:()=>playTone([440],'square',.07,.06),
+};
+
+// ── CONFETTI ──────────────────────────────────────────────
+const CVSC=document.getElementById('confetti');
+const CVSX=CVSC.getContext('2d');
+let cParts=[],cRaf=null;
+const COLS=['#007AFF','#34C759','#FF9500','#FF3B30','#AF52DE','#5AC8FA','#FFD60A'];
+const cResize=()=>{CVSC.width=innerWidth;CVSC.height=innerHeight};
+addEventListener('resize',cResize);cResize();
+const mkP=()=>({x:Math.random()*CVSC.width,y:-10,r:Math.random()*6+3,vx:(Math.random()-.5)*3,vy:Math.random()*3+2,color:COLS[Math.floor(Math.random()*COLS.length)],angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.2,rect:Math.random()>.5,alpha:1});
+const cLoop=()=>{
+  CVSX.clearRect(0,0,CVSC.width,CVSC.height);
+  cParts=cParts.filter(p=>p.alpha>.05);
+  cParts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.angle+=p.spin;
+    if(p.y>CVSC.height*.7)p.alpha-=.02;
+    CVSX.save();CVSX.globalAlpha=p.alpha;CVSX.translate(p.x,p.y);CVSX.rotate(p.angle);CVSX.fillStyle=p.color;
+    if(p.rect)CVSX.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.5);
+    else{CVSX.beginPath();CVSX.arc(0,0,p.r/2,0,Math.PI*2);CVSX.fill();}
+    CVSX.restore();
+  });
+  if(cParts.length)cRaf=requestAnimationFrame(cLoop);
+  else{CVSX.clearRect(0,0,CVSC.width,CVSC.height);cRaf=null;}
+};
+const burstConfetti=(n=120)=>{for(let i=0;i<n;i++)setTimeout(()=>cParts.push(mkP()),i*12);if(!cRaf)cLoop();};
+const stopConfetti=()=>{cParts=[];if(cRaf){cancelAnimationFrame(cRaf);cRaf=null;}CVSX.clearRect(0,0,CVSC.width,CVSC.height);};
+
+// ── MAP ──────────────────────────────────────────────────
+const svg=document.getElementById('map-svg');
+const mapInner=document.getElementById('map-inner');
+let mScale=1,mOx=0,mOy=0,mDrag=false,mDs={x:0,y:0};
+let mapClickCb=null;
+
+// Build SVG
+const ns='http://www.w3.org/2000/svg';
+const bg=document.createElementNS(ns,'rect');
+bg.setAttribute('width','1010');bg.setAttribute('height','500');bg.setAttribute('fill','var(--map-ocean)');bg.style.cursor='default';
+svg.appendChild(bg);
+PATHS.forEach(([id,d])=>{
+  const p=document.createElementNS(ns,'path');
+  p.setAttribute('d',d);p.dataset.id=id;
+  p.setAttribute('tabindex','0');
+  p.setAttribute('aria-label',(CMAP.get(id)||{name:id}).name);
+  svg.appendChild(p);
+});
+
+const mApply=()=>svg.style.transform=`translate(${mOx}px,${mOy}px) scale(${mScale})`;
+const mClamp=()=>{
+  const mx=mapInner.clientWidth*(mScale-1)/2+80;
+  const my=mapInner.clientHeight*(mScale-1)/2+80;
+  mOx=Math.max(-mx,Math.min(mx,mOx));mOy=Math.max(-my,Math.min(my,mOy));
+};
+svg.addEventListener('click',e=>{const p=e.target.closest('[data-id]');if(p&&mapClickCb){Snd.click();mapClickCb(p.dataset.id);}});
+svg.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset.id){e.preventDefault();Snd.click();if(mapClickCb)mapClickCb(e.target.dataset.id);}});
+mapInner.addEventListener('pointerdown',e=>{if(e.target.closest('[data-id]'))return;mDrag=true;mDs={x:e.clientX-mOx,y:e.clientY-mOy};mapInner.setPointerCapture(e.pointerId);});
+mapInner.addEventListener('pointermove',e=>{if(!mDrag)return;mOx=e.clientX-mDs.x;mOy=e.clientY-mDs.y;mClamp();mApply();});
+mapInner.addEventListener('pointerup',()=>mDrag=false);
+mapInner.addEventListener('pointercancel',()=>mDrag=false);
+mapInner.addEventListener('wheel',e=>{e.preventDefault();mScale=Math.max(.8,Math.min(4,mScale*(e.deltaY>0?.9:1.1)));mClamp();mApply();},{passive:false});
+document.getElementById('z-in').onclick=()=>{mScale=Math.min(4,mScale*1.25);mClamp();mApply();};
+document.getElementById('z-out').onclick=()=>{mScale=Math.max(.8,mScale*.8);mClamp();mApply();};
+document.getElementById('z-reset').onclick=()=>{mScale=1;mOx=0;mOy=0;mApply();};
+const clearMap=()=>svg.querySelectorAll('[data-id]').forEach(p=>p.className='');
+const markMap=(id,cls)=>{const p=svg.querySelector(`[data-id="${id}"]`);if(p){p.className='';p.classList.add(cls);}};
+
+// ── UI HELPERS ────────────────────────────────────────────
+const $=id=>document.getElementById(id);
+let toastT=null;
+const showToast=(type,msg)=>{
+  clearTimeout(toastT);
+  const t=$('toast');t.className=`toast show ${type}`;
+  $('toast-icon').textContent=type==='correct'?'✅':'❌';
+  $('toast-txt').textContent=msg;
+  toastT=setTimeout(()=>t.className='toast',1800);
+};
+const setTimerUI=(s,max)=>{
+  const fg=$('timer-fg');
+  fg.style.strokeDashoffset=106.8*(1-s/max);
+  $('timer-txt').textContent=s;
+  fg.className='timer-fg'+(s/max<=.25?' danger':s/max<=.5?' warn':'');
+  if(s<=5&&s>0)Snd.tick();
+};
+
+// ── GAME ─────────────────────────────────────────────────
+let score=0,round=0,rounds=[],diff='easy',history=[],timerSec=0,timerMax=15,timerID=null,current=null,curHs=hs();
+const MAX=10,TMAX={easy:20,medium:15,hard:10};
+const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
+const pool=d=>{const t={easy:['easy'],medium:['easy','medium'],hard:['easy','medium','hard']}[d]||['easy'];return COUNTRIES.filter(c=>t.includes(c.diff));};
+
+const buildStreak=()=>{
+  const s=$('streak');s.innerHTML='';
+  for(let i=0;i<MAX;i++){const d=document.createElement('div');d.className='dot'+(i===0?' cur':'');s.appendChild(d);}
+};
+const markDot=(idx,type)=>{
+  const dots=$('streak').querySelectorAll('.dot');
+  if(dots[idx]){dots[idx].classList.remove('cur');dots[idx].className=`dot ${type}`;}
+  if(dots[idx+1])dots[idx+1].classList.add('cur');
+};
+const stopTimer=()=>{clearInterval(timerID);timerID=null;};
+const startTimer=()=>{
+  stopTimer();timerSec=timerMax;setTimerUI(timerSec,timerMax);
+  timerID=setInterval(()=>{timerSec--;setTimerUI(timerSec,timerMax);if(timerSec<=0){stopTimer();onTimeout();}},1000);
+};
+
+const nextRound=()=>{
+  if(round>=MAX){endGame();return;}
+  current=rounds[round];
+  if(!current){round++;nextRound();return;}
+  const el=$('prompt-name');
+  el.style.animation='none';
+  requestAnimationFrame(()=>{el.style.animation='';el.textContent=current.name;});
+  $('prompt-hint').textContent='';
+  $('nav-round').textContent=`${round+1}/${MAX}`;
+  $('prog-fill').style.width=`${(round/MAX)*100}%`;
+  clearMap();startTimer();
+};
+
+const resolve=(ok,msg)=>{
+  stopTimer();history.push(ok?'correct':'wrong');markDot(round,ok?'correct':'wrong');
+  if(ok){score++;const sv=$('nav-score');sv.textContent=score;sv.classList.remove('bump');requestAnimationFrame(()=>sv.classList.add('bump'));}
+  showToast(ok?'correct':'wrong',msg);
+  if(ok)markMap(current.id,'correct');
+  else{markMap(current.id,'wrong');setTimeout(()=>markMap(current.id,'target'),500);}
+  ok?Snd.correct():Snd.wrong();
+  round++;setTimeout(()=>{clearMap();nextRound();},1800);
+};
+
+const onTimeout=()=>{
+  history.push('wrong');markDot(round,'wrong');
+  if(current)markMap(current.id,'target');
+  showToast('wrong',`⏰ Time's up! – ${current?.name||'?'}`);
+  Snd.wrong();round++;setTimeout(()=>{clearMap();nextRound();},1800);
+};
+
+const endGame=()=>{
+  stopTimer();
+  if(score>curHs){curHs=score;setHs(curHs);}
+  $('hs-val').textContent=curHs;$('hs-display').textContent=curHs;
+  const correct=history.filter(r=>r==='correct').length;
+  $('final-score').textContent=score;
+  $('e-correct').textContent=correct;
+  $('e-wrong').textContent=MAX-correct;
+  $('e-hs').textContent=curHs;
+  $('e-acc').textContent=Math.round(correct/MAX*100)+'%';
+  setTimeout(()=>{
+    $('ring-fill').style.strokeDashoffset=326.7*(1-score/MAX);
+    $('ring-fill').style.stroke=score>=8?'var(--success)':score>=5?'var(--accent)':'var(--error)';
+  },200);
+  const msgs=[
+    {min:10,e:'🏆',t:'Perfect Score!',  m:'You know the world inside out!'},
+    {min:8, e:'⭐',t:'Excellent!',      m:'Incredible geography skills!'},
+    {min:6, e:'🌍',t:'Well Done!',      m:'Solid knowledge of the world map.'},
+    {min:4, e:'🧭',t:'Good Attempt!',   m:"Keep exploring — you'll get better!"},
+    {min:0, e:'🌱',t:'Keep Learning!',  m:'The world is vast — keep exploring!'},
+  ];
+  const r=msgs.find(m=>score>=m.min)||msgs[4];
+  $('end-emoji').textContent=r.e;$('end-title').textContent=r.t;$('end-msg').textContent=r.m;
+  const bd=$('badges');bd.innerHTML='';
+  const addBadge=(icon,label)=>{const b=document.createElement('div');b.className='badge';b.textContent=`${icon} ${label}`;bd.appendChild(b);};
+  if(score===10)addBadge('🏆','Perfect Score');
+  if(score>=8)addBadge('⭐','Expert');
+  let streak=0;for(const r of history){if(r==='correct'){streak++;if(streak>=3){addBadge('🔥','3 in a row');break;}}else streak=0;}
+  if(score===0)addBadge('😅','Keep Practicing');
+  $('end-screen').style.display='flex';
+  if(score===MAX){setTimeout(()=>burstConfetti(),300);Snd.victory();}
+};
+
+const startGame=()=>{
+  stopConfetti();score=0;round=0;history=[];
+  timerMax=TMAX[diff]||15;
+  $('nav-score').textContent=0;$('nav-round').textContent=`1/${MAX}`;$('prog-fill').style.width='0';
+  $('hs-val').textContent=curHs;$('end-screen').style.display='none';$('start-screen').style.display='none';
+  $('ring-fill').style.strokeDashoffset='326.7';
+  clearMap();mScale=1;mOx=0;mOy=0;mApply();buildStreak();
+  const ids=new Set([...svg.querySelectorAll('[data-id]')].map(p=>p.dataset.id));
+  let p=shuffle(pool(diff)).filter(c=>ids.has(c.id));
+  rounds=p.slice(0,MAX);
+  if(rounds.length<MAX){const ex=shuffle(COUNTRIES).filter(c=>!rounds.includes(c)&&ids.has(c.id));rounds=[...rounds,...ex].slice(0,MAX);}
+  Snd.start();nextRound();
+};
+
+// ── WIRING ────────────────────────────────────────────────
+mapClickCb=id=>resolve(id===current?.id,id===current?.id?`✨ ${current.name}!`:`It was ${current?.name||'?'}`);
+$('start-btn').addEventListener('click',()=>{Snd.click();startGame();});
+$('again-btn').addEventListener('click',()=>{Snd.click();startGame();});
+$('skip-btn').addEventListener('click',()=>{
+  if(!current)return;Snd.click();stopTimer();
+  history.push('wrong');markDot(round,'wrong');
+  showToast('wrong',`Skipped – ${current.name}`);markMap(current.id,'target');Snd.wrong();
+  round++;setTimeout(()=>{clearMap();nextRound();},1800);
+});
+$('hint-btn').addEventListener('click',()=>{
+  if(!current)return;Snd.click();
+  const h=current.hints;
+  $('prompt-hint').textContent=h&&h.length?`💡 ${h[0]}`:`💡 Capital: ${current.capital}`;
+});
+$('share-btn').addEventListener('click',()=>{
+  const txt=`🌍 GeoQuest: I scored ${$('final-score').textContent}/10! Can you beat me?`;
+  if(navigator.share)navigator.share({title:'GeoQuest',text:txt}).catch(()=>{});
+  else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>showToast('correct','Copied!'));
+});
+$('diff-row').addEventListener('click',e=>{
+  const b=e.target.closest('.diff-btn');if(!b)return;
+  document.querySelectorAll('.diff-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');diff=b.dataset.diff;Snd.click();
+});
+$('theme-btn').addEventListener('click',()=>{
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  const t=dark?'light':'dark';
+  document.documentElement.setAttribute('data-theme',t);setTheme(t);
+  $('theme-icon').innerHTML=dark
+    ?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>'
+    :'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+});
+$('snd-btn').addEventListener('click',()=>{
+  sndOn=!sndOn;setSnd(sndOn);
+  $('snd-icon').innerHTML=sndOn
+    ?'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
+    :'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')$('skip-btn').click();
+  if(e.key==='h'||e.key==='H')$('hint-btn').click();
+});
+
+// ── INIT ─────────────────────────────────────────────────
+(()=>{
+  // Apply saved theme
+  const t=getTheme();
+  document.documentElement.setAttribute('data-theme',t);
+  if(t==='dark')$('theme-icon').innerHTML='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  if(!sndOn)$('snd-icon').innerHTML='<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+  $('hs-display').textContent=curHs;$('hs-val').textContent=curHs;
+
+  // Show app — simple and guaranteed
+  const fill=$('ld-fill');
+  fill.style.width='100%';
+  setTimeout(()=>{
+    $('loading').classList.add('out');
+    $('app').style.display='flex';
+    $('start-screen').style.display='flex';
+    setTimeout(()=>$('loading').style.display='none',400);
+  },500);
+})();
+</script>
 </body>
 </html>
