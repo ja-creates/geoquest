@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="GeoQuest – A premium interactive world map geography game. Test your knowledge of world countries!" />
+  <meta name="theme-color" content="#007AFF" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>GeoQuest – World Geography Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===================== LOADING SCREEN ===================== -->
+  <div id="loading-screen" class="loading-screen" role="status" aria-label="Loading GeoQuest">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+          <circle cx="28" cy="28" r="28" fill="#007AFF" opacity="0.12"/>
+          <circle cx="28" cy="28" r="20" fill="#007AFF" opacity="0.2"/>
+          <path d="M14 28C14 20.268 20.268 14 28 14C35.732 14 42 20.268 42 28C42 35.732 35.732 42 28 42C20.268 42 14 35.732 14 28Z" fill="#007AFF"/>
+          <path d="M22 28C22 25.5 23 22 28 21C25 23 27 26 26 28C25 30 21.5 30.5 22 33C19.5 31.5 19.5 28 22 28Z" fill="white" opacity="0.9"/>
+          <path d="M32 22C34.5 23 36 25.5 35 28C33.5 26 31 27 30 29C29 31 30 34 28 35C27 32 29 30 28 28C27 26 28.5 23 32 22Z" fill="white" opacity="0.7"/>
+        </svg>
+      </div>
+      <h1 class="loading-title">GeoQuest</h1>
+      <p class="loading-subtitle">Preparing your world…</p>
+      <div class="loading-bar-track" aria-hidden="true">
+        <div class="loading-bar-fill" id="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CONFETTI CANVAS ===================== -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- ===================== APP WRAPPER ===================== -->
+  <div id="app" class="app" style="display:none">
+
+    <!-- ===== HEADER / NAV ===== -->
+    <header class="nav-bar" role="banner">
+      <div class="nav-inner">
+        <div class="nav-brand">
+          <svg width="28" height="28" viewBox="0 0 56 56" fill="none" aria-hidden="true" class="nav-logo">
+            <circle cx="28" cy="28" r="28" fill="#007AFF" opacity="0.15"/>
+            <path d="M14 28C14 20.268 20.268 14 28 14C35.732 14 42 20.268 42 28C42 35.732 35.732 42 28 42C20.268 42 14 35.732 14 28Z" fill="#007AFF"/>
+            <path d="M22 28C22 25.5 23 22 28 21C25 23 27 26 26 28C25 30 21.5 30.5 22 33C19.5 31.5 19.5 28 22 28Z" fill="white" opacity="0.9"/>
+            <path d="M32 22C34.5 23 36 25.5 35 28C33.5 26 31 27 30 29C29 31 30 34 28 35C27 32 29 30 28 28C27 26 28.5 23 32 22Z" fill="white" opacity="0.7"/>
+          </svg>
+          <span class="nav-title">GeoQuest</span>
+        </div>
+
+        <div class="nav-stats" role="status" aria-live="polite" aria-label="Game stats">
+          <div class="stat-chip" id="score-chip">
+            <span class="stat-label">Score</span>
+            <span class="stat-value" id="nav-score">0</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-chip">
+            <span class="stat-label">Round</span>
+            <span class="stat-value" id="nav-round">1/10</span>
+          </div>
+        </div>
+
+        <div class="nav-controls">
+          <button class="icon-btn" id="sound-toggle" aria-label="Toggle sound" aria-pressed="true" title="Toggle sound">
+            <svg id="sound-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
+          <button class="icon-btn" id="dark-mode-toggle" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+            <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="10" aria-label="Game progress" id="progress-bar-container">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content" role="main">
+
+      <!-- Difficulty Selector (shown on game start) -->
+      <div class="difficulty-bar" id="difficulty-bar" role="group" aria-label="Select difficulty">
+        <button class="diff-btn active" data-difficulty="easy" aria-pressed="true">Easy</button>
+        <button class="diff-btn" data-difficulty="medium" aria-pressed="false">Medium</button>
+        <button class="diff-btn" data-difficulty="hard" aria-pressed="false">Hard</button>
+      </div>
+
+      <!-- Question Prompt Card -->
+      <div class="prompt-card" role="status" aria-live="assertive" aria-atomic="true" id="prompt-card">
+        <div class="prompt-inner">
+          <p class="prompt-label">Find this country on the map</p>
+          <h2 class="prompt-country" id="prompt-country">–</h2>
+          <div class="timer-ring-wrap" aria-hidden="true">
+            <svg class="timer-ring" viewBox="0 0 44 44" width="44" height="44">
+              <circle class="timer-ring-bg" cx="22" cy="22" r="18" fill="none" stroke-width="3"/>
+              <circle class="timer-ring-fg" id="timer-ring-fg" cx="22" cy="22" r="18" fill="none" stroke-width="3"
+                stroke-dasharray="113.1" stroke-dashoffset="0"/>
+            </svg>
+            <span class="timer-text" id="timer-text">15</span>
+          </div>
+        </div>
+        <div class="prompt-hint" id="prompt-hint" aria-live="polite"></div>
+      </div>
+
+      <!-- Feedback Toast -->
+      <div class="feedback-toast" id="feedback-toast" role="alert" aria-live="polite" aria-atomic="true">
+        <span class="feedback-icon" id="feedback-icon" aria-hidden="true"></span>
+        <span class="feedback-text" id="feedback-text"></span>
+      </div>
+
+      <!-- Map Container -->
+      <div class="map-container" id="map-container">
+        <div class="map-wrapper" id="map-wrapper">
+          <div id="map-svg-container" role="application" aria-label="Interactive world map. Click a country to answer." tabindex="0">
+            <!-- SVG injected by JS -->
+          </div>
+        </div>
+        <!-- Map Controls -->
+        <div class="map-controls" aria-label="Map controls">
+          <button class="map-ctrl-btn" id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button>
+          <button class="map-ctrl-btn" id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
+          <button class="map-ctrl-btn" id="zoom-reset" aria-label="Reset zoom" title="Reset zoom">⊙</button>
+        </div>
+      </div>
+
+      <!-- Country Info Popup -->
+      <div class="country-popup" id="country-popup" role="tooltip" aria-hidden="true">
+        <div class="country-popup-flag" id="popup-flag" aria-hidden="true"></div>
+        <div class="country-popup-info">
+          <p class="country-popup-name" id="popup-name">–</p>
+          <p class="country-popup-capital" id="popup-capital">–</p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ===== BOTTOM PANEL ===== -->
+    <footer class="bottom-panel" role="contentinfo">
+      <div class="streak-row" id="streak-row" aria-label="Answer streak">
+        <!-- Streak dots injected by JS -->
+      </div>
+      <div class="bottom-actions">
+        <button class="btn btn-ghost" id="skip-btn" aria-label="Skip this country">Skip</button>
+        <div class="high-score-chip" aria-label="High score">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span id="high-score-value">0</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="hint-btn" aria-label="Get a hint">Hint</button>
+      </div>
+    </footer>
+
+  </div><!-- /app -->
+
+  <!-- ===================== START SCREEN ===================== -->
+  <div id="start-screen" class="overlay-screen" role="dialog" aria-modal="true" aria-labelledby="start-title" style="display:none">
+    <div class="overlay-card">
+      <div class="overlay-logo">
+        <svg width="72" height="72" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+          <circle cx="28" cy="28" r="28" fill="#007AFF" opacity="0.12"/>
+          <circle cx="28" cy="28" r="20" fill="#007AFF" opacity="0.2"/>
+          <path d="M14 28C14 20.268 20.268 14 28 14C35.732 14 42 20.268 42 28C42 35.732 35.732 42 28 42C20.268 42 14 35.732 14 28Z" fill="#007AFF"/>
+          <path d="M22 28C22 25.5 23 22 28 21C25 23 27 26 26 28C25 30 21.5 30.5 22 33C19.5 31.5 19.5 28 22 28Z" fill="white" opacity="0.9"/>
+          <path d="M32 22C34.5 23 36 25.5 35 28C33.5 26 31 27 30 29C29 31 30 34 28 35C27 32 29 30 28 28C27 26 28.5 23 32 22Z" fill="white" opacity="0.7"/>
+        </svg>
+      </div>
+      <h1 id="start-title" class="overlay-title">GeoQuest</h1>
+      <p class="overlay-subtitle">How well do you know the world?<br/>Click countries on the map to prove it.</p>
+
+      <div class="start-stats-row">
+        <div class="start-stat">
+          <span class="start-stat-num">196</span>
+          <span class="start-stat-label">Countries</span>
+        </div>
+        <div class="start-stat">
+          <span class="start-stat-num">10</span>
+          <span class="start-stat-label">Rounds</span>
+        </div>
+        <div class="start-stat">
+          <span class="start-stat-num" id="hs-display">0</span>
+          <span class="start-stat-label">High Score</span>
+        </div>
+      </div>
+
+      <div class="difficulty-select-label">Choose difficulty</div>
+      <div class="difficulty-row" role="group" aria-label="Difficulty selection">
+        <button class="diff-select-btn active" data-diff="easy" aria-pressed="true">
+          <span class="diff-icon">🌍</span>
+          <span class="diff-name">Easy</span>
+          <span class="diff-desc">Major countries</span>
+        </button>
+        <button class="diff-select-btn" data-diff="medium" aria-pressed="false">
+          <span class="diff-icon">🧭</span>
+          <span class="diff-name">Medium</span>
+          <span class="diff-desc">More countries</span>
+        </button>
+        <button class="diff-select-btn" data-diff="hard" aria-pressed="false">
+          <span class="diff-icon">🔬</span>
+          <span class="diff-name">Hard</span>
+          <span class="diff-desc">All regions</span>
+        </button>
+      </div>
+
+      <button class="btn btn-primary btn-lg" id="start-btn" aria-label="Start game">
+        Start Game
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
+      </button>
+
+      <p class="overlay-hint">Use keyboard ← → to navigate • Tab to focus</p>
+    </div>
+  </div>
+
+  <!-- ===================== END SCREEN ===================== -->
+  <div id="end-screen" class="overlay-screen" role="dialog" aria-modal="true" aria-labelledby="end-title" style="display:none">
+    <div class="overlay-card">
+      <div class="end-emoji" id="end-emoji" aria-hidden="true">🌍</div>
+      <h2 id="end-title" class="overlay-title" id="result-title">Game Over</h2>
+      <p class="overlay-subtitle" id="result-message">Great attempt!</p>
+
+      <div class="score-display">
+        <div class="score-circle">
+          <svg viewBox="0 0 120 120" width="140" height="140" aria-hidden="true">
+            <circle class="score-circle-bg" cx="60" cy="60" r="52" fill="none" stroke-width="8"/>
+            <circle class="score-circle-fill" id="score-circle-fill" cx="60" cy="60" r="52" fill="none" stroke-width="8"
+              stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+          </svg>
+          <div class="score-circle-text">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-of">/10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="end-stats-grid">
+        <div class="end-stat">
+          <span class="end-stat-label">Correct</span>
+          <span class="end-stat-val correct" id="stat-correct">0</span>
+        </div>
+        <div class="end-stat">
+          <span class="end-stat-label">Wrong</span>
+          <span class="end-stat-val wrong" id="stat-wrong">0</span>
+        </div>
+        <div class="end-stat">
+          <span class="end-stat-label">High Score</span>
+          <span class="end-stat-val" id="stat-highscore">0</span>
+        </div>
+        <div class="end-stat">
+          <span class="end-stat-label">Accuracy</span>
+          <span class="end-stat-val" id="stat-accuracy">0%</span>
+        </div>
+      </div>
+
+      <div class="achievement-row" id="achievement-row" aria-label="Achievements earned"></div>
+
+      <div class="end-actions">
+        <button class="btn btn-primary btn-lg" id="play-again-btn" aria-label="Play again">
+          Play Again
+        </button>
+        <button class="btn btn-ghost" id="share-btn" aria-label="Share result">
+          Share Score
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="map-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
