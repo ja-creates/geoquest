@@ -482,11 +482,13 @@ const UIController = (() => {
   };
 
   const hideLoading = (cb) => {
-    EL.loadingScreen.classList.add('fade-out');
+    EL.loadingScreen.style.transition = 'opacity 0.3s ease';
+    EL.loadingScreen.style.opacity = '0';
+    EL.loadingScreen.style.pointerEvents = 'none';
     setTimeout(() => {
       EL.loadingScreen.style.display = 'none';
-      cb?.();
-    }, 500);
+      if (typeof cb === 'function') cb();
+    }, 350);
   };
 
   /* ── Screen transitions ── */
@@ -780,22 +782,15 @@ const GameController = (() => {
     simulateLoading();
   };
 
-  /* ── Loading simulation ── */
+  /* ── Loading – instant with safe fallback ── */
   const simulateLoading = () => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 22 + 8;
-      UIController.setLoadingProgress(Math.min(progress, 100));
-      if (progress >= 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          UIController.hideLoading(() => {
-            UIController.showApp();
-            UIController.showStart();
-          });
-        }, 300);
-      }
-    }, 120);
+    UIController.setLoadingProgress(100);
+    setTimeout(() => {
+      UIController.hideLoading(() => {
+        UIController.showApp();
+        UIController.showStart();
+      });
+    }, 200);
   };
 
   /* ── Event Listeners ── */
@@ -1186,13 +1181,25 @@ function getCountryPaths() {
    BOOTSTRAP
    ================================================================ */
 document.addEventListener('DOMContentLoaded', () => {
+  // Hard failsafe – if anything crashes, remove loading screen after 3s
+  const failsafe = setTimeout(() => {
+    const ls = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+    const start = document.getElementById('start-screen');
+    if (ls) ls.style.display = 'none';
+    if (app) app.style.display = 'flex';
+    if (start) start.style.display = 'flex';
+    console.warn('GeoQuest: failsafe triggered');
+  }, 3000);
+
   // Verify required data modules exist
   if (typeof COUNTRY_DATA === 'undefined') {
     console.error('GeoQuest: map-data.js failed to load. Game cannot start.');
-    document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif"><h2>Failed to load game data.</h2><p>Please ensure map-data.js is available.</p></div>';
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif"><h2>Failed to load game data.</h2><p>Please ensure map-data.js is in the same folder as index.html.</p></div>';
     return;
   }
 
   GameController.init();
+  clearTimeout(failsafe); // clear failsafe if init succeeded
   console.info('🌍 GeoQuest initialized successfully');
 });

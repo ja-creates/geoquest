@@ -215,9 +215,7 @@ body {
 .nav-bar {
   position: relative;
   z-index: 100;
-  background: var(--bg-card);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
+  background: var(--bg-card-solid);
   border-bottom: 1px solid var(--border);
   height: calc(var(--nav-h) + 4px);
   flex-shrink: 0;
@@ -395,9 +393,7 @@ body {
 
 /* ── Prompt Card ── */
 .prompt-card {
-  background: var(--bg-card);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 14px 20px 12px;
@@ -722,9 +718,7 @@ body {
 .bottom-panel {
   height: var(--bottom-h);
   flex-shrink: 0;
-  background: var(--bg-card);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
+  background: var(--bg-card-solid);
   border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
