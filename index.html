@@ -4,149 +4,158 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>GeoQuest – World Geography Game</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --accent:#007AFF;--accent-h:#0066D6;--success:#34C759;--error:#FF3B30;
-  --warning:#FF9500;--bg:#F5F5F7;--card:#ffffff;--border:rgba(0,0,0,0.08);
+:root{
+  --accent:#007AFF;--accent-h:#0066D6;--success:#34C759;--error:#FF3B30;--warning:#FF9500;
+  --bg:#F0F4F8;--card:#ffffff;--border:rgba(0,0,0,0.09);
   --text:#1C1C1E;--text2:#48484A;--text3:#8E8E93;
-  --map-land:#C8D8E8;--map-hover:#9BBDD4;--map-ocean:#D6E8F5;
-  --map-correct:#34C759;--map-wrong:#FF3B30;--map-target:#007AFF;
-  --shadow:0 4px 20px rgba(0,0,0,0.08);--r:14px;--rf:999px;
+  --land:#B8CFE0;--land-h:#8AAFC8;--ocean:#D4E9F7;
+  --correct:#34C759;--wrong:#FF3B30;--target:#007AFF;
   --font:'DM Sans',-apple-system,sans-serif;--serif:'DM Serif Display',Georgia,serif;
 }
 [data-theme=dark]{
-  --bg:#0A0A0F;--card:#1C1C20;--border:rgba(255,255,255,0.09);
-  --text:#F2F2F7;--text2:#EBEBF5CC;--text3:#EBEBF599;
-  --map-land:#2C3E50;--map-hover:#3A5068;--map-ocean:#1A2535;
-  --shadow:0 4px 20px rgba(0,0,0,0.4);
+  --bg:#0D1117;--card:#161B22;--border:rgba(255,255,255,0.1);
+  --text:#E6EDF3;--text2:#8B949E;--text3:#6E7681;
+  --land:#2D4A6B;--land-h:#3D5F80;--ocean:#0D1B2A;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
 /* LOADING */
-#loading{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .3s}
+#loading{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .4s}
 #loading.out{opacity:0;pointer-events:none}
-.ld-logo{animation:ld-spin 1.5s linear infinite}
-@keyframes ld-spin{to{transform:rotate(360deg)}}
+.ld-globe{animation:spin 2s linear infinite;font-size:3rem}
+@keyframes spin{to{transform:rotate(360deg)}}
 .ld-title{font-family:var(--serif);font-size:2rem;color:var(--text)}
-.ld-bar{width:180px;height:4px;background:var(--border);border-radius:var(--rf);overflow:hidden}
-.ld-fill{height:100%;width:0;background:var(--accent);transition:width .3s;border-radius:var(--rf)}
+.ld-bar{width:200px;height:4px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:4px}
+.ld-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+
 /* APP */
-#app{display:none;flex-direction:column;height:100dvh}
+#app{display:none;flex-direction:column;height:100dvh;height:100vh}
+
 /* NAV */
-nav{height:60px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;position:relative}
-.nav-brand{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:1.3rem;color:var(--text)}
-.nav-stats{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rf);padding:4px 14px}
-.stat{display:flex;align-items:center;gap:6px}
-.stat-l{font-size:.68rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
-.stat-v{font-size:.88rem;font-weight:700;color:var(--text);min-width:18px;text-align:center}
-.stat-v.bump{animation:bump .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes bump{50%{transform:scale(1.5);color:var(--success)}}
-.nav-btns{display:flex;gap:6px}
-.icon-btn{width:36px;height:36px;border-radius:var(--rf);border:1px solid var(--border);background:var(--bg);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
-.icon-btn:hover{background:var(--card);color:var(--accent);transform:scale(1.06)}
-.prog-track{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--border)}
-.prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#5AC8FA);transition:width .5s;border-radius:var(--rf)}
-/* MAIN */
-main{flex:1;display:flex;flex-direction:column;padding:10px 14px 8px;gap:8px;min-height:0;overflow:hidden}
+nav{height:58px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;position:relative;z-index:10}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:1.25rem;color:var(--text)}
+.brand svg{flex-shrink:0}
+.nav-mid{display:flex;align-items:center;gap:8px}
+.pill{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:5px 16px}
+.pill-stat{display:flex;align-items:center;gap:5px}
+.pill-lbl{font-size:.65rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.pill-val{font-size:.9rem;font-weight:700;color:var(--text);min-width:20px;text-align:center}
+.pill-val.bump{animation:bump .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bump{50%{transform:scale(1.6);color:var(--success)}}
+.divider{width:1px;height:14px;background:var(--border)}
+.nav-btns{display:flex;gap:5px}
+.ibtn{width:36px;height:36px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
+.ibtn:hover{background:var(--card);color:var(--accent);transform:scale(1.08)}
+.prog{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--border)}
+.prog-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#5AC8FA);transition:width .6s;border-radius:99px}
+
 /* PROMPT */
-.prompt{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:12px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;flex-shrink:0}
-.prompt::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),#5AC8FA)}
-.prompt-inner{display:flex;align-items:center;justify-content:space-between}
-.prompt-lbl{font-size:.65rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
-.prompt-name{font-family:var(--serif);font-size:clamp(1.3rem,4vw,1.9rem);color:var(--text);letter-spacing:-.02em;animation:slide-in .3s cubic-bezier(.34,1.56,.64,1)}
-@keyframes slide-in{from{opacity:0;transform:translateY(6px) scale(.95)}}
-.prompt-hint{font-size:.75rem;color:var(--accent);font-weight:500;min-height:16px;margin-top:3px}
-.timer-wrap{position:relative;width:42px;height:42px;flex-shrink:0}
-.timer-ring{transform:rotate(-90deg)}
-.timer-bg{stroke:var(--border)}
-.timer-fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .3s}
-.timer-fg.warn{stroke:var(--warning)}
-.timer-fg.danger{stroke:var(--error)}
-.timer-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--text)}
-/* MAP */
-.map-wrap{flex:1;position:relative;border-radius:16px;overflow:hidden;background:var(--map-ocean);border:1px solid var(--border);min-height:0}
-.map-inner{width:100%;height:100%;overflow:hidden;cursor:grab;user-select:none}
-.map-inner:active{cursor:grabbing}
-#map-svg{width:100%;height:100%;transform-origin:center;will-change:transform}
-#map-svg path{fill:var(--map-land);stroke:rgba(255,255,255,.45);stroke-width:.5;cursor:pointer;transition:fill .15s}
-[data-theme=dark] #map-svg path{stroke:rgba(0,0,0,.3)}
-#map-svg path:hover{fill:var(--map-hover)}
-#map-svg path.correct{fill:var(--map-correct)!important;filter:drop-shadow(0 0 5px rgba(52,199,89,.7));animation:pop .45s cubic-bezier(.34,1.56,.64,1)}
-#map-svg path.wrong{fill:var(--map-wrong)!important;filter:drop-shadow(0 0 5px rgba(255,59,48,.7));animation:shake .35s ease}
-#map-svg path.target{fill:var(--map-target)!important;filter:drop-shadow(0 0 7px rgba(0,122,255,.8));animation:pulse 1s ease infinite}
-@keyframes pop{40%{transform:scale(1.1)}100%{transform:scale(1)}}
-@keyframes shake{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
-@keyframes pulse{50%{opacity:.6}}
-.map-ctrls{position:absolute;bottom:12px;right:12px;display:flex;flex-direction:column;gap:4px}
-.map-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s;line-height:1}
-.map-btn:hover{color:var(--accent);transform:scale(1.06)}
-/* TOAST */
-.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:11px 20px;display:flex;align-items:center;gap:8px;box-shadow:0 12px 40px rgba(0,0,0,.12);opacity:0;pointer-events:none;z-index:50;white-space:nowrap;transition:opacity .15s,transform .15s cubic-bezier(.34,1.56,.64,1)}
+.prompt-wrap{flex-shrink:0;padding:10px 14px 0}
+.prompt{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.prompt::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),#5AC8FA,var(--success))}
+.prompt-left{}
+.prompt-lbl{font-size:.62rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.prompt-country{font-family:var(--serif);font-size:clamp(1.4rem,4vw,2rem);color:var(--text);letter-spacing:-.02em;line-height:1.1}
+.prompt-hint{font-size:.72rem;color:var(--accent);font-weight:500;min-height:15px;margin-top:3px}
+.prompt-right{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+/* Timer */
+.timer-wrap{position:relative;width:44px;height:44px}
+.t-ring{transform:rotate(-90deg)}
+.t-bg{stroke:var(--border)}
+.t-fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .3s}
+.t-fg.warn{stroke:var(--warning)}.t-fg.danger{stroke:var(--error)}
+.t-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--text)}
+/* Diff pills */
+.diff-pills{display:flex;gap:5px}
+.dpill{padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:transparent;font-family:var(--font);font-size:.68rem;font-weight:600;color:var(--text3);cursor:pointer;transition:all .15s}
+.dpill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* MAP CONTAINER */
+.map-section{flex:1;padding:8px 14px 0;min-height:0;position:relative}
+.map-box{width:100%;height:100%;border-radius:16px;overflow:hidden;background:var(--ocean);border:1px solid var(--border);box-shadow:0 2px 20px rgba(0,0,0,.07);position:relative;cursor:grab}
+.map-box:active{cursor:grabbing}
+#the-map{display:block;transform-origin:0 0;will-change:transform;user-select:none}
+/* SVG country styles */
+.country{fill:var(--land);stroke:rgba(255,255,255,.6);stroke-width:.4;cursor:pointer;transition:fill .12s}
+[data-theme=dark] .country{stroke:rgba(0,0,0,.4)}
+.country:hover{fill:var(--land-h)}
+.country.hit-correct{fill:var(--correct)!important;stroke:#fff;stroke-width:1;filter:drop-shadow(0 0 6px rgba(52,199,89,.7));animation:cpop .4s ease}
+.country.hit-wrong{fill:var(--wrong)!important;stroke:#fff;stroke-width:1;filter:drop-shadow(0 0 6px rgba(255,59,48,.7));animation:cshake .35s ease}
+.country.hit-target{fill:var(--target)!important;stroke:#fff;stroke-width:1;filter:drop-shadow(0 0 8px rgba(0,122,255,.8));animation:cpulse 1s ease infinite}
+@keyframes cpop{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes cshake{20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+@keyframes cpulse{50%{opacity:.6}}
+.ocean-bg{fill:var(--ocean);cursor:default}
+/* Map controls */
+.map-ctrls{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:5}
+.mc{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 6px rgba(0,0,0,.08);transition:all .15s;line-height:1}
+.mc:hover{color:var(--accent);transform:scale(1.08)}
+/* Toast */
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px 20px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.15);opacity:0;pointer-events:none;z-index:20;white-space:nowrap;transition:opacity .15s,transform .15s cubic-bezier(.34,1.56,.64,1)}
 .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.toast.correct{border-color:var(--success);background:rgba(52,199,89,.1)}
-.toast.wrong{border-color:var(--error);background:rgba(255,59,48,.1)}
-.toast-icon{font-size:1.2rem}
-.toast-txt{font-size:.9rem;font-weight:600;color:var(--text)}
+.toast.correct{border-color:var(--correct);background:rgba(52,199,89,.1)}
+.toast.wrong{border-color:var(--wrong);background:rgba(255,59,48,.1)}
+.toast-i{font-size:1.2rem}.toast-t{font-size:.9rem;font-weight:600;color:var(--text)}
+
 /* FOOTER */
-footer{height:66px;flex-shrink:0;background:var(--card);border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:0 16px}
-.streak{display:flex;gap:5px}
-.dot{width:8px;height:8px;border-radius:var(--rf);background:var(--border);transition:background .2s,transform .2s}
-.dot.correct{background:var(--success);transform:scale(1.15)}
-.dot.wrong{background:var(--error)}
-.dot.cur{background:var(--accent);box-shadow:0 0 0 3px rgba(0,122,255,.2);animation:dot-p 1.2s ease infinite}
-@keyframes dot-p{50%{box-shadow:0 0 0 6px transparent}}
+footer{height:64px;flex-shrink:0;background:var(--card);border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:0 16px}
+.streak{display:flex;gap:5px;align-items:center}
+.dot{width:8px;height:8px;border-radius:99px;background:var(--border);transition:all .2s;flex-shrink:0}
+.dot.c{background:var(--correct);transform:scale(1.2)}
+.dot.w{background:var(--wrong)}
+.dot.cur{background:var(--accent);box-shadow:0 0 0 3px rgba(0,122,255,.2);animation:dp 1.2s ease infinite}
+@keyframes dp{50%{box-shadow:0 0 0 6px transparent}}
 .foot-row{display:flex;align-items:center;gap:10px}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:var(--rf);border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:var(--font);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s}
 .btn:hover{background:var(--card);color:var(--text)}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(0,122,255,.3)}
-.btn-primary:hover{background:var(--accent-h);transform:translateY(-1px)}
-.btn-lg{padding:13px 28px;font-size:.95rem;border-radius:18px}
-.hs-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);border-radius:var(--rf);color:var(--warning);font-size:.76rem;font-weight:700}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(0,122,255,.3)}
+.btn-p:hover{background:var(--accent-h);transform:translateY(-1px)}
+.btn-lg{padding:13px 30px;font-size:.95rem;border-radius:18px}
+.hs{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);border-radius:99px;color:var(--warning);font-size:.75rem;font-weight:700}
+
 /* OVERLAYS */
-.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade-in .2s ease}
-@keyframes fade-in{from{opacity:0}}
-.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:30px 26px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:16px;animation:card-up .3s cubic-bezier(.34,1.56,.64,1);max-height:92dvh;overflow-y:auto}
-@keyframes card-up{from{opacity:0;transform:translateY(24px) scale(.96)}}
-.card-title{font-family:var(--serif);font-size:2rem;text-align:center;letter-spacing:-.02em;color:var(--text)}
-.card-sub{font-size:.88rem;color:var(--text2);text-align:center;line-height:1.6}
-.stats-row{display:flex;gap:20px;background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:14px 22px;width:100%;justify-content:center}
-.sbox{display:flex;flex-direction:column;align-items:center;gap:2px}
-.snum{font-family:var(--serif);font-size:1.6rem;color:var(--accent)}
-.slbl{font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
-.diff-lbl{font-size:.68rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-.diff-row{display:flex;gap:8px;width:100%}
-.diff-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 6px;background:var(--bg);border:2px solid var(--border);border-radius:13px;cursor:pointer;transition:all .15s;font-family:var(--font)}
-.diff-btn.active{border-color:var(--accent);background:rgba(0,122,255,.07)}
-.diff-btn:hover:not(.active){border-color:rgba(0,0,0,.18)}
-.diff-icon{font-size:1.2rem}
-.diff-name{font-size:.8rem;font-weight:700;color:var(--text)}
-.diff-desc{font-size:.65rem;color:var(--text3)}
-.end-emoji{font-size:2.8rem;animation:ep .5s cubic-bezier(.34,1.56,.64,1) both .1s}
+.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:16px;animation:fdin .2s ease}
+@keyframes fdin{from{opacity:0}}
+.ov-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:28px 24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;gap:14px;animation:cup .3s cubic-bezier(.34,1.56,.64,1);max-height:94dvh;overflow-y:auto}
+@keyframes cup{from{opacity:0;transform:translateY(22px) scale(.96)}}
+.ov-title{font-family:var(--serif);font-size:1.9rem;text-align:center;color:var(--text)}
+.ov-sub{font-size:.85rem;color:var(--text2);text-align:center;line-height:1.6}
+.srow{display:flex;gap:18px;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:12px 20px;width:100%;justify-content:center}
+.sbox{display:flex;flex-direction:column;align-items:center;gap:1px}
+.sn{font-family:var(--serif);font-size:1.5rem;color:var(--accent)}
+.sl{font-size:.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.dlbl{font-size:.65rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.drow{display:flex;gap:7px;width:100%}
+.db{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;background:var(--bg);border:2px solid var(--border);border-radius:12px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.db.on{border-color:var(--accent);background:rgba(0,122,255,.07)}
+.db:hover:not(.on){border-color:rgba(0,0,0,.2)}
+.di{font-size:1.2rem}.dn{font-size:.78rem;font-weight:700;color:var(--text)}.dd{font-size:.62rem;color:var(--text3)}
+.end-em{font-size:2.8rem;animation:ep .45s cubic-bezier(.34,1.56,.64,1) both .1s}
 @keyframes ep{from{opacity:0;transform:scale(.3) rotate(-20deg)}}
-.score-ring{position:relative;display:flex;align-items:center;justify-content:center;width:130px;height:130px}
-.ring-bg{stroke:var(--border)}
-.ring-fill{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1) .3s;transform:rotate(-90deg);transform-origin:65px 65px}
-.ring-txt{position:absolute;display:flex;align-items:baseline;gap:2px}
-.ring-big{font-family:var(--serif);font-size:2.4rem;color:var(--text)}
-.ring-of{font-size:.88rem;color:var(--text3);font-weight:500}
-.end-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
-.end-stat{background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:10px 13px;display:flex;flex-direction:column;gap:2px}
-.esl{font-size:.65rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
-.esv{font-family:var(--serif);font-size:1.4rem;color:var(--text)}
-.esv.c{color:var(--success)}.esv.w{color:var(--error)}
-.end-acts{display:flex;flex-direction:column;gap:8px;width:100%}
-.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;min-height:20px}
-.badge{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--rf);font-size:.7rem;font-weight:600;background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);color:var(--warning);animation:badge-pop .3s cubic-bezier(.34,1.56,.64,1) both}
-@keyframes badge-pop{from{opacity:0;transform:scale(.7)}}
+.ring-wrap{position:relative;width:130px;height:130px;display:flex;align-items:center;justify-content:center}
+.rbg{stroke:var(--border)}.rfill{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1) .3s;transform:rotate(-90deg);transform-origin:65px 65px}
+.ring-txt{position:absolute;display:flex;align-items:baseline;gap:1px}
+.rbig{font-family:var(--serif);font-size:2.3rem;color:var(--text)}.rof{font-size:.85rem;color:var(--text3)}
+.egrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
+.estat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 13px;display:flex;flex-direction:column;gap:2px}
+.esl{font-size:.62rem;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.esv{font-family:var(--serif);font-size:1.35rem;color:var(--text)}
+.esv.ec{color:var(--correct)}.esv.ew{color:var(--wrong)}
+.eacts{display:flex;flex-direction:column;gap:7px;width:100%}
+.bdgs{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.bdg{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:99px;font-size:.68rem;font-weight:600;background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);color:var(--warning);animation:bpop .3s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes bpop{from{opacity:0;transform:scale(.7)}}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:9998}
-@media(max-width:480px){
-  .nav-brand span:last-child{display:none}
+@media(max-width:520px){
+  .brand span{display:none}
   nav{padding:0 10px}
-  .card{padding:22px 16px;gap:13px}
-  .diff-desc{display:none}
-  .stats-row{gap:14px;padding:12px 14px}
+  .ov-card{padding:20px 14px;gap:11px}
+  .dd{display:none}
+  .srow{gap:12px;padding:10px 14px}
+  .prompt-country{font-size:1.3rem}
 }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -154,137 +163,127 @@ footer{height:66px;flex-shrink:0;background:var(--card);border-top:1px solid var
 <body>
 
 <div id="loading">
-  <svg class="ld-logo" width="60" height="60" viewBox="0 0 50 50" fill="none">
-    <circle cx="25" cy="25" r="20" fill="#007AFF" opacity=".18"/>
-    <path d="M10 25a15 15 0 1 1 30 0 15 15 0 0 1-30 0z" fill="#007AFF"/>
-    <path d="M18 25c0-2 1-5 7-6-2 2 0 5-1 7s-4 3-3 6c-2-1-4-4-3-7z" fill="white" opacity=".9"/>
-    <path d="M30 18c2 1 4 4 3 7-1-2-4-1-5 1s0 5-2 6c-1-2 1-4 0-6s-1-5 4-8z" fill="white" opacity=".7"/>
-  </svg>
+  <div class="ld-globe">🌍</div>
   <div class="ld-title">GeoQuest</div>
-  <div class="ld-bar"><div class="ld-fill" id="ld-fill"></div></div>
+  <div class="ld-bar"><div class="ld-fill" id="ld-fill" style="width:0%"></div></div>
 </div>
 
 <canvas id="confetti"></canvas>
 
 <div id="app">
+  <!-- NAV -->
   <nav>
-    <div class="nav-brand">
-      <svg width="24" height="24" viewBox="0 0 50 50" fill="none">
-        <path d="M10 25a15 15 0 1 1 30 0 15 15 0 0 1-30 0z" fill="#007AFF"/>
-        <path d="M18 25c0-2 1-5 7-6-2 2 0 5-1 7s-4 3-3 6c-2-1-4-4-3-7z" fill="white" opacity=".9"/>
-        <path d="M30 18c2 1 4 4 3 7-1-2-4-1-5 1s0 5-2 6c-1-2 1-4 0-6s-1-5 4-8z" fill="white" opacity=".7"/>
-      </svg>
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 50 50" fill="none"><path d="M10 25a15 15 0 1 1 30 0 15 15 0 0 1-30 0z" fill="#007AFF"/><path d="M18 25c0-2 1-5 7-6-2 2 0 5-1 7s-4 3-3 6c-2-1-4-4-3-7z" fill="white" opacity=".9"/><path d="M30 18c2 1 4 4 3 7-1-2-4-1-5 1s0 5-2 6c-1-2 1-4 0-6s-1-5 4-8z" fill="white" opacity=".7"/></svg>
       <span>GeoQuest</span>
     </div>
-    <div class="nav-stats">
-      <div class="stat"><span class="stat-l">Score</span><span class="stat-v" id="nav-score">0</span></div>
-      <div style="width:1px;height:14px;background:var(--border)"></div>
-      <div class="stat"><span class="stat-l">Round</span><span class="stat-v" id="nav-round">1/10</span></div>
+    <div class="nav-mid">
+      <div class="pill">
+        <div class="pill-stat"><span class="pill-lbl">Score</span><span class="pill-val" id="v-score">0</span></div>
+        <div class="divider"></div>
+        <div class="pill-stat"><span class="pill-lbl">Round</span><span class="pill-val" id="v-round">1/10</span></div>
+      </div>
     </div>
     <div class="nav-btns">
-      <button class="icon-btn" id="snd-btn" title="Toggle sound" aria-label="Toggle sound">
-        <svg id="snd-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-      </button>
-      <button class="icon-btn" id="theme-btn" title="Toggle dark mode" aria-label="Toggle dark mode">
-        <svg id="theme-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
-      </button>
+      <button class="ibtn" id="snd-btn" title="Sound"><svg id="snd-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+      <button class="ibtn" id="theme-btn" title="Theme"><svg id="theme-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg></button>
     </div>
-    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog"><div class="prog-bar" id="prog-bar"></div></div>
   </nav>
 
-  <main>
+  <!-- PROMPT -->
+  <div class="prompt-wrap">
     <div class="prompt">
-      <div class="prompt-inner">
-        <div>
-          <div class="prompt-lbl">Find this country</div>
-          <div class="prompt-name" id="prompt-name">–</div>
-          <div class="prompt-hint" id="prompt-hint"></div>
-        </div>
+      <div class="prompt-left">
+        <div class="prompt-lbl">👆 Click this country on the map</div>
+        <div class="prompt-country" id="prompt-country">–</div>
+        <div class="prompt-hint" id="prompt-hint"></div>
+      </div>
+      <div class="prompt-right">
         <div class="timer-wrap">
-          <svg class="timer-ring" viewBox="0 0 42 42" width="42" height="42">
-            <circle class="timer-bg" cx="21" cy="21" r="17" fill="none" stroke-width="3"/>
-            <circle class="timer-fg" id="timer-fg" cx="21" cy="21" r="17" fill="none" stroke-width="3" stroke-dasharray="106.8" stroke-dashoffset="0"/>
+          <svg class="t-ring" viewBox="0 0 44 44" width="44" height="44">
+            <circle class="t-bg" cx="22" cy="22" r="18" fill="none" stroke-width="3"/>
+            <circle class="t-fg" id="t-fg" cx="22" cy="22" r="18" fill="none" stroke-width="3" stroke-dasharray="113.1" stroke-dashoffset="0"/>
           </svg>
-          <div class="timer-txt" id="timer-txt">15</div>
+          <div class="t-num" id="t-num">15</div>
+        </div>
+        <div class="diff-pills">
+          <button class="dpill on" data-d="easy">Easy</button>
+          <button class="dpill" data-d="medium">Med</button>
+          <button class="dpill" data-d="hard">Hard</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="map-wrap">
-      <div class="map-inner" id="map-inner">
-        <svg id="map-svg" viewBox="0 0 1010 500" xmlns="http://www.w3.org/2000/svg"></svg>
-      </div>
+  <!-- MAP -->
+  <div class="map-section">
+    <div class="map-box" id="map-box">
+      <svg id="the-map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1000" style="width:100%;height:100%"></svg>
       <div class="map-ctrls">
-        <button class="map-btn" id="z-in">+</button>
-        <button class="map-btn" id="z-out">−</button>
-        <button class="map-btn" id="z-reset">⊙</button>
+        <button class="mc" id="zi">+</button>
+        <button class="mc" id="zo">−</button>
+        <button class="mc" id="zr">⊙</button>
       </div>
-      <div class="toast" id="toast">
-        <span class="toast-icon" id="toast-icon"></span>
-        <span class="toast-txt" id="toast-txt"></span>
-      </div>
+      <div class="toast" id="toast"><span class="toast-i" id="ti"></span><span class="toast-t" id="tt"></span></div>
     </div>
-  </main>
+  </div>
 
+  <!-- FOOTER -->
   <footer>
     <div class="streak" id="streak"></div>
     <div class="foot-row">
       <button class="btn" id="skip-btn">Skip</button>
-      <div class="hs-chip">⭐ <span id="hs-val">0</span></div>
+      <div class="hs">⭐ <span id="hs-v">0</span></div>
       <button class="btn" id="hint-btn">Hint 💡</button>
     </div>
   </footer>
 </div>
 
 <!-- START -->
-<div class="overlay" id="start-screen">
-  <div class="card">
-    <svg width="56" height="56" viewBox="0 0 50 50" fill="none">
-      <circle cx="25" cy="25" r="25" fill="#007AFF" opacity=".12"/>
-      <path d="M10 25a15 15 0 1 1 30 0 15 15 0 0 1-30 0z" fill="#007AFF"/>
-      <path d="M18 25c0-2 1-5 7-6-2 2 0 5-1 7s-4 3-3 6c-2-1-4-4-3-7z" fill="white" opacity=".9"/>
-      <path d="M30 18c2 1 4 4 3 7-1-2-4-1-5 1s0 5-2 6c-1-2 1-4 0-6s-1-5 4-8z" fill="white" opacity=".7"/>
-    </svg>
-    <div class="card-title">GeoQuest</div>
-    <div class="card-sub">How well do you know the world?<br>Click countries on the map to prove it.</div>
-    <div class="stats-row">
-      <div class="sbox"><span class="snum">60</span><span class="slbl">Countries</span></div>
-      <div class="sbox"><span class="snum">10</span><span class="slbl">Rounds</span></div>
-      <div class="sbox"><span class="snum" id="hs-display">0</span><span class="slbl">Best</span></div>
+<div class="ov" id="start-ov">
+  <div class="ov-card">
+    <div style="font-size:3rem">🌍</div>
+    <div class="ov-title">GeoQuest</div>
+    <div class="ov-sub">Test your world geography knowledge.<br>Click the correct country on the map!</div>
+    <div class="srow">
+      <div class="sbox"><span class="sn" id="s-count">80</span><span class="sl">Countries</span></div>
+      <div class="sbox"><span class="sn">10</span><span class="sl">Rounds</span></div>
+      <div class="sbox"><span class="sn" id="s-hs">0</span><span class="sl">Best</span></div>
     </div>
-    <div class="diff-lbl">Choose difficulty</div>
-    <div class="diff-row" id="diff-row">
-      <button class="diff-btn active" data-diff="easy"><span class="diff-icon">🌍</span><span class="diff-name">Easy</span><span class="diff-desc">Major nations</span></button>
-      <button class="diff-btn" data-diff="medium"><span class="diff-icon">🧭</span><span class="diff-name">Medium</span><span class="diff-desc">More countries</span></button>
-      <button class="diff-btn" data-diff="hard"><span class="diff-icon">🔬</span><span class="diff-name">Hard</span><span class="diff-desc">All regions</span></button>
+    <div class="dlbl">Difficulty</div>
+    <div class="drow" id="start-drow">
+      <button class="db on" data-d="easy"><span class="di">🌍</span><span class="dn">Easy</span><span class="dd">Major nations</span></button>
+      <button class="db" data-d="medium"><span class="di">🧭</span><span class="dn">Medium</span><span class="dd">More countries</span></button>
+      <button class="db" data-d="hard"><span class="di">🔬</span><span class="dn">Hard</span><span class="dd">All regions</span></button>
     </div>
-    <button class="btn btn-primary btn-lg" id="start-btn">Start Game ▶</button>
-    <div style="font-size:.68rem;color:var(--text3)">H = hint · Esc = skip</div>
+    <button class="btn btn-p btn-lg" id="start-btn">▶ Start Game</button>
+    <div style="font-size:.65rem;color:var(--text3)">H = hint · Esc = skip</div>
   </div>
 </div>
 
 <!-- END -->
-<div class="overlay" id="end-screen" style="display:none">
-  <div class="card">
-    <div class="end-emoji" id="end-emoji">🌍</div>
-    <div class="card-title" id="end-title">Game Over</div>
-    <div class="card-sub" id="end-msg">Great attempt!</div>
-    <div class="score-ring">
+<div class="ov" id="end-ov" style="display:none">
+  <div class="ov-card">
+    <div class="end-em" id="end-em">🌍</div>
+    <div class="ov-title" id="end-title">Game Over</div>
+    <div class="ov-sub" id="end-msg">–</div>
+    <div class="ring-wrap">
       <svg viewBox="0 0 130 130" width="130" height="130">
-        <circle class="ring-bg" cx="65" cy="65" r="52" fill="none" stroke-width="8"/>
-        <circle class="ring-fill" id="ring-fill" cx="65" cy="65" r="52" fill="none" stroke-width="8" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+        <circle class="rbg" cx="65" cy="65" r="52" fill="none" stroke-width="8"/>
+        <circle class="rfill" id="r-fill" cx="65" cy="65" r="52" fill="none" stroke-width="8" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
       </svg>
-      <div class="ring-txt"><span class="ring-big" id="final-score">0</span><span class="ring-of">/10</span></div>
+      <div class="ring-txt"><span class="rbig" id="r-score">0</span><span class="rof">/10</span></div>
     </div>
-    <div class="end-grid">
-      <div class="end-stat"><span class="esl">Correct</span><span class="esv c" id="e-correct">0</span></div>
-      <div class="end-stat"><span class="esl">Wrong</span><span class="esv w" id="e-wrong">0</span></div>
-      <div class="end-stat"><span class="esl">Best Score</span><span class="esv" id="e-hs">0</span></div>
-      <div class="end-stat"><span class="esl">Accuracy</span><span class="esv" id="e-acc">0%</span></div>
+    <div class="egrid">
+      <div class="estat"><span class="esl">Correct</span><span class="esv ec" id="e-c">0</span></div>
+      <div class="estat"><span class="esl">Wrong</span><span class="esv ew" id="e-w">0</span></div>
+      <div class="estat"><span class="esl">Best Score</span><span class="esv" id="e-hs">0</span></div>
+      <div class="estat"><span class="esl">Accuracy</span><span class="esv" id="e-acc">0%</span></div>
     </div>
-    <div class="badges" id="badges"></div>
-    <div class="end-acts">
-      <button class="btn btn-primary btn-lg" id="again-btn">Play Again</button>
+    <div class="bdgs" id="bdgs"></div>
+    <div class="eacts">
+      <button class="btn btn-p btn-lg" id="again-btn">Play Again</button>
       <button class="btn btn-lg" id="share-btn">Share Score</button>
     </div>
   </div>
@@ -292,272 +291,426 @@ footer{height:66px;flex-shrink:0;background:var(--card);border-top:1px solid var
 
 <script>
 'use strict';
-// ── DATA ──────────────────────────────────────────────────────
-const COUNTRIES=[
-  {id:'BR',name:'Brazil',capital:'Brasília',flag:'🇧🇷',diff:'easy',hints:['Largest in South America','Amazon rainforest']},
-  {id:'US',name:'United States',capital:'Washington D.C.',flag:'🇺🇸',diff:'easy',hints:['50 states','Borders Canada & Mexico']},
-  {id:'CA',name:'Canada',capital:'Ottawa',flag:'🇨🇦',diff:'easy',hints:['2nd largest by area','Known for maple syrup']},
-  {id:'RU',name:'Russia',capital:'Moscow',flag:'🇷🇺',diff:'easy',hints:['Largest country in world','Spans 11 time zones']},
-  {id:'CN',name:'China',capital:'Beijing',flag:'🇨🇳',diff:'easy',hints:['Most populous country','Has the Great Wall']},
-  {id:'AU',name:'Australia',capital:'Canberra',flag:'🇦🇺',diff:'easy',hints:['Continent and country','Home to kangaroos']},
-  {id:'IN',name:'India',capital:'New Delhi',flag:'🇮🇳',diff:'easy',hints:['2nd most populous','Birthplace of yoga']},
-  {id:'AR',name:'Argentina',capital:'Buenos Aires',flag:'🇦🇷',diff:'easy',hints:['2nd largest in S. America','Famous for tango']},
-  {id:'MX',name:'Mexico',capital:'Mexico City',flag:'🇲🇽',diff:'easy',hints:['Borders US to north','Home of tacos']},
-  {id:'FR',name:'France',capital:'Paris',flag:'🇫🇷',diff:'easy',hints:['Home of Eiffel Tower','Famous for wine']},
-  {id:'DE',name:'Germany',capital:'Berlin',flag:'🇩🇪',diff:'easy',hints:['Largest EU economy','Known for Oktoberfest']},
-  {id:'JP',name:'Japan',capital:'Tokyo',flag:'🇯🇵',diff:'easy',hints:['Island nation in E. Asia','Famous for sushi']},
-  {id:'EG',name:'Egypt',capital:'Cairo',flag:'🇪🇬',diff:'easy',hints:['Home of pyramids','Has the Nile River']},
-  {id:'ZA',name:'South Africa',capital:'Pretoria',flag:'🇿🇦',diff:'easy',hints:['Southernmost in Africa','Three capitals']},
-  {id:'NG',name:'Nigeria',capital:'Abuja',flag:'🇳🇬',diff:'easy',hints:['Most populous in Africa','Largest African economy']},
-  {id:'IT',name:'Italy',capital:'Rome',flag:'🇮🇹',diff:'easy',hints:['Shaped like a boot','Home of pizza & pasta']},
-  {id:'ES',name:'Spain',capital:'Madrid',flag:'🇪🇸',diff:'easy',hints:['Iberian Peninsula','Famous for flamenco']},
-  {id:'GB',name:'United Kingdom',capital:'London',flag:'🇬🇧',diff:'easy',hints:['Island nation NW Europe','Home of Big Ben']},
-  {id:'SA',name:'Saudi Arabia',capital:'Riyadh',flag:'🇸🇦',diff:'easy',hints:['Largest in Middle East','Top oil exporter']},
-  {id:'ID',name:'Indonesia',capital:'Jakarta',flag:'🇮🇩',diff:'easy',hints:["World's largest archipelago",'Home to Bali']},
-  {id:'CO',name:'Colombia',capital:'Bogotá',flag:'🇨🇴',diff:'medium',hints:['Named after Columbus','Top coffee producer']},
-  {id:'PE',name:'Peru',capital:'Lima',flag:'🇵🇪',diff:'medium',hints:['Home of Machu Picchu','Amazon starts here']},
-  {id:'VE',name:'Venezuela',capital:'Caracas',flag:'🇻🇪',diff:'medium',hints:['Largest oil reserves','Angel Falls is here']},
-  {id:'CL',name:'Chile',capital:'Santiago',flag:'🇨🇱',diff:'medium',hints:['Long thin country','Shares Andes with Argentina']},
-  {id:'TR',name:'Turkey',capital:'Ankara',flag:'🇹🇷',diff:'medium',hints:['Spans two continents','Istanbul is largest city']},
-  {id:'IR',name:'Iran',capital:'Tehran',flag:'🇮🇷',diff:'medium',hints:['Ancient Persian Empire','Borders Iraq & Afghanistan']},
-  {id:'PK',name:'Pakistan',capital:'Islamabad',flag:'🇵🇰',diff:'medium',hints:['5th most populous','K2 mountain is here']},
-  {id:'UA',name:'Ukraine',capital:'Kyiv',flag:'🇺🇦',diff:'medium',hints:['Largest entirely in Europe','Famous for sunflowers']},
-  {id:'PL',name:'Poland',capital:'Warsaw',flag:'🇵🇱',diff:'medium',hints:['Largest in Central Europe','Borders Germany & Russia']},
-  {id:'ET',name:'Ethiopia',capital:'Addis Ababa',flag:'🇪🇹',diff:'medium',hints:['Most populous landlocked','Origin of coffee']},
-  {id:'KE',name:'Kenya',capital:'Nairobi',flag:'🇰🇪',diff:'medium',hints:['Famous for safari','Straddles the equator']},
-  {id:'TZ',name:'Tanzania',capital:'Dodoma',flag:'🇹🇿',diff:'medium',hints:['Mt. Kilimanjaro is here','Zanzibar island']},
-  {id:'MA',name:'Morocco',capital:'Rabat',flag:'🇲🇦',diff:'medium',hints:['Northernmost in Africa','Borders Sahara desert']},
-  {id:'GH',name:'Ghana',capital:'Accra',flag:'🇬🇭',diff:'medium',hints:['1st independent sub-Saharan','Famous cacao producer']},
-  {id:'SE',name:'Sweden',capital:'Stockholm',flag:'🇸🇪',diff:'medium',hints:['Scandinavia','Land of IKEA & ABBA']},
-  {id:'NO',name:'Norway',capital:'Oslo',flag:'🇳🇴',diff:'medium',hints:['Famous for fjords','Midnight sun in summer']},
-  {id:'VN',name:'Vietnam',capital:'Hanoi',flag:'🇻🇳',diff:'medium',hints:['S-shaped SE Asian country','Famous for Phở']},
-  {id:'TH',name:'Thailand',capital:'Bangkok',flag:'🇹🇭',diff:'medium',hints:['Land of Smiles','Never colonized in SE Asia']},
-  {id:'KR',name:'South Korea',capital:'Seoul',flag:'🇰🇷',diff:'medium',hints:['Korean Peninsula south','K-pop originates here']},
-  {id:'MY',name:'Malaysia',capital:'Kuala Lumpur',flag:'🇲🇾',diff:'medium',hints:['SE Asia + Borneo','Petronas Towers']},
-  {id:'BO',name:'Bolivia',capital:'Sucre',flag:'🇧🇴',diff:'hard',hints:['Landlocked in S. America',"World's highest capital"]},
-  {id:'PY',name:'Paraguay',capital:'Asunción',flag:'🇵🇾',diff:'hard',hints:['Landlocked between BR & AR','Guaraní co-official language']},
-  {id:'UY',name:'Uruguay',capital:'Montevideo',flag:'🇺🇾',diff:'hard',hints:['Smallest Spanish-speaking S.Am','Borders Brazil & Argentina']},
-  {id:'EC',name:'Ecuador',capital:'Quito',flag:'🇪🇨',diff:'hard',hints:['Named after the equator','Galápagos Islands']},
-  {id:'SD',name:'Sudan',capital:'Khartoum',flag:'🇸🇩',diff:'hard',hints:['Nile runs through it','Borders Egypt to north']},
-  {id:'AO',name:'Angola',capital:'Luanda',flag:'🇦🇴',diff:'hard',hints:['Portuguese-speaking','Atlantic coast S. Africa']},
-  {id:'MZ',name:'Mozambique',capital:'Maputo',flag:'🇲🇿',diff:'hard',hints:['Portuguese-speaking','East coast S. Africa']},
-  {id:'ZM',name:'Zambia',capital:'Lusaka',flag:'🇿🇲',diff:'hard',hints:['Victoria Falls is here','Landlocked S. Africa']},
-  {id:'RO',name:'Romania',capital:'Bucharest',flag:'🇷🇴',diff:'hard',hints:["Dracula's Transylvania",'Borders Ukraine & Bulgaria']},
-  {id:'HU',name:'Hungary',capital:'Budapest',flag:'🇭🇺',diff:'hard',hints:['On the Danube River','Landlocked Central Europe']},
-  {id:'KZ',name:'Kazakhstan',capital:'Astana',flag:'🇰🇿',diff:'hard',hints:['Largest landlocked country','9th largest overall']},
-  {id:'MM',name:'Myanmar',capital:'Naypyidaw',flag:'🇲🇲',diff:'hard',hints:['Formerly Burma','Borders India & China']},
-  {id:'NP',name:'Nepal',capital:'Kathmandu',flag:'🇳🇵',diff:'hard',hints:['Home of Mt. Everest','Between India & China']},
-  {id:'AF',name:'Afghanistan',capital:'Kabul',flag:'🇦🇫',diff:'hard',hints:['Landlocked Central/S. Asia','Borders Pakistan & Iran']},
-  {id:'NZ',name:'New Zealand',capital:'Wellington',flag:'🇳🇿',diff:'hard',hints:['Two main Pacific islands','Land of the Kiwi']},
-  {id:'IQ',name:'Iraq',capital:'Baghdad',flag:'🇮🇶',diff:'hard',hints:['Ancient Mesopotamia','Tigris & Euphrates rivers']},
-  {id:'FI',name:'Finland',capital:'Helsinki',flag:'🇫🇮',diff:'hard',hints:['Land of thousand lakes','Borders Russia & Sweden']},
-  {id:'CZ',name:'Czech Republic',capital:'Prague',flag:'🇨🇿',diff:'hard',hints:['Also called Czechia','Landlocked Central Europe']},
-  {id:'UZ',name:'Uzbekistan',capital:'Tashkent',flag:'🇺🇿',diff:'hard',hints:['Doubly landlocked','Ancient Silk Road cities']},
-  {id:'SY',name:'Syria',capital:'Damascus',flag:'🇸🇾',diff:'hard',hints:['One of oldest cities','Borders Turkey & Iraq']},
-];
-const CMAP=new Map(COUNTRIES.map(c=>[c.id,c]));
 
-// ── SVG PATHS ─────────────────────────────────────────────────
-const X=l=>((l+180)/360*1010).toFixed(1);
-const Y=l=>((90-l)/180*500).toFixed(1);
-const P=pts=>'M'+pts.map(([lo,la])=>X(lo)+','+Y(la)).join('L')+'Z';
-const PATHS=[
-  ['US',P([[-124,49],[-96,49],[-84,46],[-83,42],[-76,44],[-67,47],[-67,45],[-71,41],[-75,38],[-76,35],[-81,31],[-82,29],[-87,30],[-90,29],[-94,30],[-97,26],[-97,28],[-101,26],[-104,29],[-111,31],[-117,32],[-120,34],[-124,41]])],
-  ['CA',P([[-141,70],[-60,70],[-55,47],[-67,45],[-71,41],[-76,44],[-83,42],[-84,46],[-96,49],[-124,49],[-136,60],[-141,60]])],
-  ['MX',P([[-117,32],[-97,26],[-97,22],[-90,18],[-87,16],[-87,21],[-90,21],[-93,19],[-95,19],[-99,22],[-101,20],[-105,21],[-107,24],[-110,28],[-114,31]])],
-  ['BR',P([[-34,-5],[-35,-10],[-39,-15],[-40,-20],[-43,-23],[-48,-26],[-51,-30],[-53,-33],[-56,-33],[-58,-30],[-57,-20],[-60,-15],[-60,-5],[-55,2],[-51,4],[-50,2],[-46,0],[-44,2],[-40,0],[-38,0],[-35,-5]])],
-  ['AR',P([[-68,-22],[-65,-22],[-62,-22],[-58,-20],[-57,-20],[-56,-33],[-53,-33],[-65,-55],[-68,-55],[-70,-52],[-72,-45],[-72,-42],[-70,-38],[-68,-35],[-68,-30],[-68,-25]])],
-  ['CO',P([[-77,8],[-72,12],[-67,12],[-67,6],[-67,2],[-70,2],[-70,-4],[-75,-1],[-77,0],[-77,4],[-80,8]])],
-  ['VE',P([[-73,12],[-63,10],[-60,8],[-61,6],[-64,4],[-67,6],[-67,12],[-72,12]])],
-  ['PE',P([[-81,-2],[-75,-1],[-70,-4],[-70,-11],[-68,-14],[-70,-18],[-75,-15],[-80,-9]])],
-  ['BO',P([[-68,-14],[-64,-11],[-60,-15],[-57,-20],[-62,-22],[-65,-22],[-68,-22],[-68,-18],[-70,-18]])],
-  ['CL',P([[-68,-18],[-70,-18],[-72,-42],[-70,-52],[-68,-55],[-65,-55],[-68,-50],[-70,-45],[-70,-42],[-70,-38],[-68,-35],[-68,-30],[-68,-25],[-68,-22]])],
-  ['PY',P([[-58,-20],[-57,-20],[-62,-22],[-65,-22],[-64,-20],[-61,-20]])],
-  ['UY',P([[-53,-33],[-56,-33],[-58,-30],[-57,-25]])],
-  ['EC',P([[-80,-3],[-75,-1],[-75,-5],[-78,-5]])],
-  ['GB',P([[-5,50],[0,51],[2,52],[0,58],[-3,59],[-6,58],[-5,52],[-4,50]])],
-  ['FR',P([[2,51],[8,48],[8,44],[3,43],[-2,44],[-5,48],[-2,51]])],
-  ['ES',P([[-9,44],[3,43],[3,38],[0,36],[-6,36],[-9,37],[-9,44]])],
-  ['DE',P([[6,51],[15,51],[15,48],[12,47],[8,48],[8,51]])],
-  ['IT',P([[7,44],[15,48],[16,42],[14,38],[16,39],[15,37],[12,38],[9,41]])],
-  ['PL',P([[14,51],[24,51],[24,49],[23,52],[14,51]])],
-  ['UA',P([[22,52],[37,52],[37,46],[31,46],[28,45],[24,46],[22,49]])],
-  ['RO',P([[22,48],[30,48],[30,44],[25,44],[22,46]])],
-  ['CZ',P([[12,51],[18,51],[18,49],[12,49]])],
-  ['HU',P([[16,48],[22,48],[22,46],[17,45]])],
-  ['SE',P([[11,56],[24,68],[28,70],[24,70],[16,70],[12,58]])],
-  ['NO',P([[4,58],[12,58],[28,70],[28,72],[8,72],[5,62]])],
-  ['FI',P([[24,70],[28,70],[30,70],[30,64],[25,60],[24,64]])],
-  ['RU',P([[30,70],[60,72],[100,72],[180,72],[180,50],[140,46],[130,42],[60,40],[40,45],[28,52]])],
-  ['EG',P([[25,22],[34,22],[35,30],[32,32],[28,32],[25,30]])],
-  ['NG',P([[3,7],[14,12],[15,11],[14,8],[8,4],[3,6]])],
-  ['ZA',P([[17,-29],[32,-29],[33,-24],[32,-22],[30,-18],[28,-15],[25,-22],[22,-28],[17,-34]])],
-  ['ET',P([[36,15],[42,12],[44,12],[46,10],[42,8],[38,6],[34,8],[33,12]])],
-  ['KE',P([[34,4],[42,4],[41,0],[37,-4],[34,-2],[33,2]])],
-  ['TZ',P([[34,-2],[40,-2],[40,-10],[38,-10],[36,-8],[34,-4]])],
-  ['MA',P([[-6,36],[0,36],[-2,34],[-2,30],[-6,30],[-13,28],[-13,32]])],
-  ['GH',P([[0,11],[2,11],[3,6],[1,4],[-1,5]])],
-  ['SD',P([[22,22],[38,22],[36,12],[34,12],[33,14],[32,12],[28,12],[24,16]])],
-  ['AO',P([[12,-6],[24,-6],[24,-18],[18,-22],[14,-18],[12,-10]])],
-  ['MZ',P([[32,-10],[40,-10],[36,-18],[35,-26],[32,-26],[30,-22],[32,-18]])],
-  ['ZM',P([[22,-8],[32,-8],[32,-18],[28,-18],[22,-18]])],
-  ['CN',P([[80,40],[122,40],[128,48],[108,54],[80,54]])],
-  ['IN',P([[68,36],[78,36],[97,30],[97,8],[80,8],[70,22],[68,24]])],
-  ['SA',P([[37,30],[55,22],[60,18],[50,14],[42,12],[37,22]])],
-  ['IR',P([[44,39],[60,40],[62,36],[60,26],[56,22],[48,22],[45,30]])],
-  ['IQ',P([[39,37],[48,37],[48,30],[46,28],[42,28],[38,34]])],
-  ['SY',P([[36,37],[42,37],[42,34],[38,32],[36,34]])],
-  ['TR',P([[26,42],[44,42],[40,36],[36,36],[28,38],[26,40]])],
-  ['PK',P([[62,36],[74,36],[74,24],[68,23],[64,23],[62,30]])],
-  ['AF',P([[60,38],[75,38],[74,36],[74,30],[68,30],[62,36]])],
-  ['KZ',P([[50,52],[82,52],[80,42],[60,40],[52,44]])],
-  ['UZ',P([[56,42],[70,42],[68,40],[64,38],[58,38],[56,40]])],
-  ['NP',P([[80,30],[88,28],[82,26],[80,28]])],
-  ['VN',P([[102,22],[108,22],[108,16],[106,10],[104,10],[102,14]])],
-  ['TH',P([[98,20],[102,22],[102,14],[100,6],[98,6]])],
-  ['MY',P([[100,6],[108,6],[118,6],[118,4],[104,2],[100,4]])],
-  ['ID',P([[96,6],[108,6],[140,0],[120,-8],[106,-8],[96,0]])],
-  ['JP',P([[128,44],[142,44],[142,32],[134,32],[128,38]])],
-  ['KR',P([[126,38],[130,38],[130,34],[126,34]])],
-  ['MM',P([[92,28],[100,28],[100,16],[96,14],[94,18],[92,24]])],
-  ['AU',P([[114,-22],[136,-16],[154,-26],[152,-38],[130,-38],[116,-34]])],
-  ['NZ',P([[166,-34],[178,-38],[172,-46],[168,-44],[166,-40]])],
+// ═══════════════════════════════════════════════════════════════
+//  COUNTRY DATA  –  80 countries across all continents
+// ═══════════════════════════════════════════════════════════════
+const COUNTRIES = [
+  // ── AMERICAS ──────────────────────────────────────────────
+  {id:'US',name:'United States',   cap:'Washington D.C.',diff:'easy',  hints:['50 states','Borders Canada & Mexico']},
+  {id:'CA',name:'Canada',          cap:'Ottawa',         diff:'easy',  hints:['2nd largest country','Known for maple syrup']},
+  {id:'MX',name:'Mexico',          cap:'Mexico City',    diff:'easy',  hints:['Borders USA to north','Land of tacos']},
+  {id:'BR',name:'Brazil',          cap:'Brasília',       diff:'easy',  hints:['Largest in S. America','Amazon rainforest']},
+  {id:'AR',name:'Argentina',       cap:'Buenos Aires',   diff:'easy',  hints:['2nd largest in S. America','Famous for tango']},
+  {id:'CO',name:'Colombia',        cap:'Bogotá',         diff:'medium',hints:['Top coffee producer','Named after Columbus']},
+  {id:'PE',name:'Peru',            cap:'Lima',           diff:'medium',hints:['Home of Machu Picchu','Amazon starts here']},
+  {id:'VE',name:'Venezuela',       cap:'Caracas',        diff:'medium',hints:['Angel Falls is here','Largest oil reserves']},
+  {id:'CL',name:'Chile',           cap:'Santiago',       diff:'medium',hints:['Long thin country','Pacific coast S. America']},
+  {id:'BO',name:'Bolivia',         cap:'Sucre',          diff:'hard',  hints:['Landlocked in S. America','Highest capital city']},
+  {id:'PY',name:'Paraguay',        cap:'Asunción',       diff:'hard',  hints:['Landlocked between BR & AR','Guaraní co-official']},
+  {id:'UY',name:'Uruguay',         cap:'Montevideo',     diff:'hard',  hints:['Smallest in S. America','Borders Brazil & Argentina']},
+  {id:'EC',name:'Ecuador',         cap:'Quito',          diff:'hard',  hints:['On the equator','Galápagos Islands here']},
+  {id:'GY',name:'Guyana',          cap:'Georgetown',     diff:'hard',  hints:['N. coast of S. America','Only English-speaking in S. Am']},
+  // ── EUROPE ────────────────────────────────────────────────
+  {id:'GB',name:'United Kingdom',  cap:'London',         diff:'easy',  hints:['Island nation NW Europe','Home of Big Ben']},
+  {id:'FR',name:'France',          cap:'Paris',          diff:'easy',  hints:['Home of Eiffel Tower','Famous for wine']},
+  {id:'DE',name:'Germany',         cap:'Berlin',         diff:'easy',  hints:['Largest EU economy','Known for Oktoberfest']},
+  {id:'IT',name:'Italy',           cap:'Rome',           diff:'easy',  hints:['Shaped like a boot','Home of pizza & pasta']},
+  {id:'ES',name:'Spain',           cap:'Madrid',         diff:'easy',  hints:['Iberian Peninsula','Famous for flamenco']},
+  {id:'PT',name:'Portugal',        cap:'Lisbon',         diff:'medium',hints:['Western Iberian Peninsula','Famous for explorers']},
+  {id:'NL',name:'Netherlands',     cap:'Amsterdam',      diff:'medium',hints:['Land of tulips & windmills','Below sea level mostly']},
+  {id:'BE',name:'Belgium',         cap:'Brussels',       diff:'medium',hints:['Heart of EU','Famous for waffles & chocolate']},
+  {id:'CH',name:'Switzerland',     cap:'Bern',           diff:'medium',hints:['Landlocked Alpine country','Famous for watches & chocolate']},
+  {id:'AT',name:'Austria',         cap:'Vienna',         diff:'medium',hints:['Alpine country','Birthplace of Mozart']},
+  {id:'SE',name:'Sweden',          cap:'Stockholm',      diff:'medium',hints:['Scandinavia','Land of IKEA & ABBA']},
+  {id:'NO',name:'Norway',          cap:'Oslo',           diff:'medium',hints:['Famous for fjords','Midnight sun in summer']},
+  {id:'FI',name:'Finland',         cap:'Helsinki',       diff:'hard',  hints:['Land of a thousand lakes','Borders Russia & Sweden']},
+  {id:'DK',name:'Denmark',         cap:'Copenhagen',     diff:'hard',  hints:['Scandinavian peninsula','Famous for LEGO']},
+  {id:'PL',name:'Poland',          cap:'Warsaw',         diff:'medium',hints:['Largest in Central Europe','Borders Germany & Russia']},
+  {id:'UA',name:'Ukraine',         cap:'Kyiv',           diff:'medium',hints:['Largest entirely in Europe','Famous for sunflowers']},
+  {id:'RO',name:'Romania',         cap:'Bucharest',      diff:'hard',  hints:["Dracula's Transylvania",'Borders Ukraine & Bulgaria']},
+  {id:'HU',name:'Hungary',         cap:'Budapest',       diff:'hard',  hints:['On the Danube River','Landlocked Central Europe']},
+  {id:'CZ',name:'Czech Republic',  cap:'Prague',         diff:'hard',  hints:['Also called Czechia','Landlocked Central Europe']},
+  {id:'GR',name:'Greece',          cap:'Athens',         diff:'medium',hints:['Birthplace of democracy','Mediterranean islands']},
+  {id:'TR',name:'Turkey',          cap:'Ankara',         diff:'medium',hints:['Spans two continents','Istanbul is largest city']},
+  {id:'RU',name:'Russia',          cap:'Moscow',         diff:'easy',  hints:['Largest country in world','Spans 11 time zones']},
+  // ── AFRICA ────────────────────────────────────────────────
+  {id:'NG',name:'Nigeria',         cap:'Abuja',          diff:'easy',  hints:['Most populous in Africa','Largest African economy']},
+  {id:'EG',name:'Egypt',           cap:'Cairo',          diff:'easy',  hints:['Home of pyramids','Has the Nile River']},
+  {id:'ZA',name:'South Africa',    cap:'Pretoria',       diff:'easy',  hints:['Southernmost in Africa','Three capitals']},
+  {id:'ET',name:'Ethiopia',        cap:'Addis Ababa',    diff:'medium',hints:['Most populous landlocked','Origin of coffee']},
+  {id:'KE',name:'Kenya',           cap:'Nairobi',        diff:'medium',hints:['Famous for safari','Straddles the equator']},
+  {id:'TZ',name:'Tanzania',        cap:'Dodoma',         diff:'medium',hints:['Mt. Kilimanjaro is here','Zanzibar island']},
+  {id:'MA',name:'Morocco',         cap:'Rabat',          diff:'medium',hints:['Northernmost in Africa','Borders Sahara desert']},
+  {id:'GH',name:'Ghana',           cap:'Accra',          diff:'medium',hints:['1st independent sub-Saharan','Famous cacao producer']},
+  {id:'CI',name:"Côte d'Ivoire",   cap:'Yamoussoukro',   diff:'hard',  hints:['West Africa','Largest cocoa producer']},
+  {id:'SN',name:'Senegal',         cap:'Dakar',          diff:'hard',  hints:['Westernmost in mainland Africa','Almost surrounds Gambia']},
+  {id:'CM',name:'Cameroon',        cap:'Yaoundé',        diff:'hard',  hints:['Central West Africa','Called Africa in miniature']},
+  {id:'SD',name:'Sudan',           cap:'Khartoum',       diff:'hard',  hints:['Nile runs through it','Borders Egypt to north']},
+  {id:'AO',name:'Angola',          cap:'Luanda',         diff:'hard',  hints:['Portuguese-speaking','Atlantic coast S. Africa']},
+  {id:'MZ',name:'Mozambique',      cap:'Maputo',         diff:'hard',  hints:['Portuguese-speaking','East coast S. Africa']},
+  {id:'ZM',name:'Zambia',          cap:'Lusaka',         diff:'hard',  hints:['Victoria Falls is here','Landlocked S. Africa']},
+  {id:'MG',name:'Madagascar',      cap:'Antananarivo',   diff:'hard',  hints:['Large island off E. Africa','Lemurs live here']},
+  {id:'DZ',name:'Algeria',         cap:'Algiers',        diff:'medium',hints:['Largest country in Africa','Mostly Sahara desert']},
+  {id:'LY',name:'Libya',           cap:'Tripoli',        diff:'hard',  hints:['N. Africa','Borders Egypt to east']},
+  // ── ASIA ──────────────────────────────────────────────────
+  {id:'CN',name:'China',           cap:'Beijing',        diff:'easy',  hints:['Most populous country','Has the Great Wall']},
+  {id:'IN',name:'India',           cap:'New Delhi',      diff:'easy',  hints:['2nd most populous','Birthplace of yoga']},
+  {id:'JP',name:'Japan',           cap:'Tokyo',          diff:'easy',  hints:['Island nation E. Asia','Famous for sushi & anime']},
+  {id:'SA',name:'Saudi Arabia',    cap:'Riyadh',         diff:'easy',  hints:['Largest in Middle East','Top oil exporter']},
+  {id:'ID',name:'Indonesia',       cap:'Jakarta',        diff:'easy',  hints:["World's largest archipelago",'Home to Bali']},
+  {id:'PK',name:'Pakistan',        cap:'Islamabad',      diff:'medium',hints:['5th most populous','K2 mountain is here']},
+  {id:'IR',name:'Iran',            cap:'Tehran',         diff:'medium',hints:['Ancient Persian Empire','Borders Iraq & Afghanistan']},
+  {id:'IQ',name:'Iraq',            cap:'Baghdad',        diff:'medium',hints:['Ancient Mesopotamia','Tigris & Euphrates']},
+  {id:'VN',name:'Vietnam',         cap:'Hanoi',          diff:'medium',hints:['S-shaped SE Asian country','Famous for Phở']},
+  {id:'TH',name:'Thailand',        cap:'Bangkok',        diff:'medium',hints:['Land of Smiles','Never colonized in SE Asia']},
+  {id:'MY',name:'Malaysia',        cap:'Kuala Lumpur',   diff:'medium',hints:['SE Asia + Borneo','Petronas Towers']},
+  {id:'PH',name:'Philippines',     cap:'Manila',         diff:'medium',hints:['7000+ islands in Pacific','SE Asia archipelago']},
+  {id:'KR',name:'South Korea',     cap:'Seoul',          diff:'medium',hints:['Korean Peninsula south','K-pop originates here']},
+  {id:'KZ',name:'Kazakhstan',      cap:'Astana',         diff:'hard',  hints:['Largest landlocked country','9th largest overall']},
+  {id:'AF',name:'Afghanistan',     cap:'Kabul',          diff:'hard',  hints:['Landlocked Central/S. Asia','Borders Pakistan & Iran']},
+  {id:'NP',name:'Nepal',           cap:'Kathmandu',      diff:'hard',  hints:['Home of Mt. Everest','Between India & China']},
+  {id:'MM',name:'Myanmar',         cap:'Naypyidaw',      diff:'hard',  hints:['Formerly Burma','Borders India & China']},
+  {id:'UZ',name:'Uzbekistan',      cap:'Tashkent',       diff:'hard',  hints:['Doubly landlocked','Ancient Silk Road cities']},
+  {id:'SY',name:'Syria',           cap:'Damascus',       diff:'hard',  hints:['One of oldest cities','Borders Turkey & Iraq']},
+  // ── OCEANIA ───────────────────────────────────────────────
+  {id:'AU',name:'Australia',       cap:'Canberra',       diff:'easy',  hints:['Continent and country','Home to kangaroos']},
+  {id:'NZ',name:'New Zealand',     cap:'Wellington',     diff:'hard',  hints:['Two main Pacific islands','Land of the Kiwi']},
+  {id:'PG',name:'Papua New Guinea',cap:'Port Moresby',   diff:'hard',  hints:['N. of Australia','Most languages in world']},
 ];
 
-// ── STORAGE ──────────────────────────────────────────────────
-const S={
+const CMAP = new Map(COUNTRIES.map(c => [c.id, c]));
+
+// ═══════════════════════════════════════════════════════════════
+//  SVG WORLD MAP  –  detailed country paths
+//  Coordinate space: viewBox 0 0 2000 1000
+//  lon → x = (lon + 180) / 360 * 2000
+//  lat → y = (90  - lat) / 180 * 1000
+// ═══════════════════════════════════════════════════════════════
+const X = lon => +((lon + 180) / 360 * 2000).toFixed(1);
+const Y = lat => +((90  - lat) / 180 * 1000).toFixed(1);
+const poly = pts => 'M ' + pts.map(([lo,la]) => X(lo)+','+Y(la)).join(' L ') + ' Z';
+
+// Each entry: [id, svgPath]  — paths are detailed polygon outlines
+const MAP_PATHS = [
+  // ── NORTH AMERICA ─────────────────────────────────────────
+  ['US', poly([[-124.7,48.4],[-122.8,48.9],[-95.2,49],[-88.4,48.3],[-84.8,46.1],[-83.5,42.1],[-82.5,41.7],[-79.8,43],[-76.8,44.1],[-75.4,44.8],[-71.6,45],[-69.5,47.5],[-67.4,47.2],[-67.5,45.3],[-70.8,43.1],[-72,41.2],[-74.2,40.5],[-76,38.9],[-76.4,37.3],[-76.9,35.7],[-77.4,34.8],[-79.5,32.9],[-81.5,30.8],[-81.8,29.3],[-82.6,27.3],[-84,30],[-85.5,30.3],[-88,30.2],[-89.5,29.2],[-90.4,29.1],[-93.5,29.6],[-96.5,26],[-97.4,27],[-97.2,28.1],[-100.6,28.2],[-103.8,29.2],[-106.5,31.8],[-111.1,31.3],[-114.8,32.5],[-117.5,32.5],[-118.5,34],[-120.6,34.5],[-122.4,37.8],[-124.2,40.4],[-124.6,41.5],[-124.1,46.2]])],
+
+  ['CA', poly([[-140,60],[-136.5,59.5],[-135,60.3],[-129.5,55.3],[-124.8,49.4],[-95,49],[-88.4,48.3],[-84.8,46.1],[-83.5,42.1],[-82.7,45.8],[-79.8,43],[-76.8,44.1],[-75.4,44.8],[-71.6,45],[-65,44.7],[-64,45.9],[-66,47.5],[-60,46.2],[-60,47],[-64,48],[-66,48.5],[-67.4,47.2],[-68,47.3],[-70.5,47.5],[-71.6,45],[-74.7,45.1],[-76.8,44.1],[-79.8,43],[-82.7,45.8],[-83.5,42.1],[-84.8,46.1],[-88.4,48.3],[-89.5,48.1],[-93,48.6],[-95,49],[-100,49],[-110,49],[-120,49],[-124.8,49.4],[-125,50.8],[-127,51.5],[-128,54],[-130,55],[-133,55],[-136,58],[-138,59.8],[-140,60]])],
+
+  ['MX', poly([[-117.1,32.5],[-114.8,32.5],[-111.1,31.3],[-108.4,31.2],[-106.5,31.8],[-104.9,30.6],[-103.8,29.2],[-100.6,28.2],[-99.5,27.7],[-99.5,26.4],[-97.4,27],[-97.1,25.9],[-97.5,23.8],[-91.4,18.4],[-87.8,16],[-87.6,15.9],[-88.2,16.1],[-90.4,16.1],[-90.5,18],[-88.3,18.5],[-87.6,21],[-87.5,21.5],[-86.8,21.3],[-86.8,20.2],[-87.4,19.5],[-88,18.5],[-87.3,16.4],[-89.2,15.9],[-89.2,17.8],[-90.1,17.8],[-90.7,18],[-91.7,18.4],[-92.2,18.8],[-93,18.8],[-93.6,18.5],[-94.7,18.2],[-96.7,19.4],[-97,19.9],[-97.5,20.7],[-98.7,21.3],[-99.5,22.1],[-100.9,22.9],[-102,21.7],[-104.6,19.2],[-105.6,20.5],[-106,22.9],[-108,24.1],[-109.4,23.4],[-110,24.3],[-110.3,24.3],[-111.6,26.1],[-113,26.2],[-113.1,27.2],[-113.3,28.9],[-114.9,29.2],[-114.9,30.1],[-113.6,30.3],[-111.9,31.3],[-111.1,31.3],[-114.8,32.5]])],
+
+  ['BR', poly([[-34.8,-4.1],[-34.7,-7],[-37.9,-11.7],[-38.5,-13.2],[-39.6,-16.2],[-41,-18.6],[-43.4,-22.8],[-44.7,-23.2],[-47.8,-26.3],[-48.8,-28.4],[-50.1,-29.3],[-52.4,-33.5],[-53.4,-33.8],[-53.4,-32.6],[-56.2,-30.1],[-57.8,-30.8],[-58.4,-32],[-57,-33.5],[-56.5,-31.8],[-55.5,-30.3],[-55,-28.2],[-56.4,-26.3],[-55.7,-24],[-54.6,-23.7],[-54,-24],[-52.7,-26.1],[-52.6,-27.6],[-52.5,-30],[-53.4,-33.8],[-54,-34],[-55.5,-30.3],[-57.8,-30.8],[-58.4,-32],[-57,-33.5],[-56.5,-31.8],[-55.5,-30.3],[-54.7,-28],[-53.6,-27.4],[-50.9,-29.4],[-49,-28.7],[-48.9,-26.8],[-48.7,-26.4],[-48.8,-26.1],[-47.8,-24.1],[-44.7,-23.2],[-43.3,-22.9],[-43,-22.8],[-41,-21.5],[-41,-17.5],[-39.3,-16.3],[-39,-15.4],[-37.9,-14.6],[-37.6,-13.3],[-36.3,-10.7],[-35.3,-9.5],[-35,-7.5],[-34.8,-4.1]])],
+
+  ['AR', poly([[-62.5,-22],[-65.5,-22.2],[-65.7,-21.5],[-67.8,-22.9],[-67.2,-24],[-68.2,-27.1],[-69,-29.7],[-69,-33.3],[-70.5,-33.5],[-71.3,-36.5],[-71.4,-38],[-70.5,-42.5],[-69.6,-46.5],[-72,-50],[-72.5,-51],[-68.5,-54.5],[-65,-55.1],[-66.5,-55.9],[-68.5,-54.5],[-72,-53],[-75,-53],[-73,-46],[-72,-42],[-71.5,-38],[-70.5,-33.5],[-69,-29.7],[-68.2,-27.1],[-67.2,-24],[-68.2,-22.9],[-67.8,-22.9],[-65.7,-21.5],[-65.5,-22.2],[-62.5,-22]])],
+
+  ['CO', poly([[-66.9,1.3],[-67.1,2.1],[-67.4,2.6],[-67.3,4],[-67.8,6.2],[-72.5,11.1],[-72.8,11.8],[-73.4,11.3],[-75.5,10.7],[-76.9,8.6],[-77.4,8],[-77.2,7.2],[-77.7,5.7],[-77.1,4.2],[-75.5,2.6],[-75.9,1.4],[-75.3,0.1],[-75.6,-0.2],[-75.9,-0.1],[-76.3,0.4],[-76.4,0.8],[-77.7,2.7],[-78.3,2.4],[-78.6,1.8],[-78.7,1.3],[-77.5,0.2],[-76.5,-0.2],[-75.7,-0.2],[-75.3,0.1],[-75.9,1.4],[-75.5,2.6],[-77.1,4.2],[-77.7,5.7],[-77.2,7.2],[-77.4,8],[-76.9,8.6],[-75.5,10.7],[-73.4,11.3],[-72.8,11.8],[-72.5,11.1],[-67.8,6.2],[-67.3,4],[-67.4,2.6],[-67.1,2.1],[-66.9,1.3]])],
+
+  ['VE', poly([[-73,12.5],[-72.3,12],[-71.2,11.7],[-70.3,11.9],[-69.3,11.5],[-68.4,11.2],[-67.5,10.7],[-66.1,10.6],[-64.7,10.5],[-63.5,10.2],[-61.9,10.6],[-61,10.2],[-60.5,9.4],[-61.5,8.6],[-62.5,7.7],[-63.3,7.6],[-64.4,7.4],[-64.3,6.2],[-63.9,5.8],[-63.3,5.7],[-62.7,4.9],[-62.5,4.2],[-61.9,4.4],[-61.3,4.1],[-60.9,4.7],[-60.5,5.2],[-60.7,6.2],[-61.1,6.8],[-61,7.5],[-60.6,8.6],[-61.5,8.6],[-60.5,9.4],[-61,10.2],[-61.9,10.6],[-63.5,10.2],[-64.7,10.5],[-66.1,10.6],[-67.5,10.7],[-68.4,11.2],[-69.3,11.5],[-70.3,11.9],[-71.2,11.7],[-72.3,12],[-73,12.5]])],
+
+  ['PE', poly([[-81.3,-4.2],[-80.9,-3.4],[-80.3,-2.8],[-79.8,-2],[-79.6,-0.6],[-78.9,0.2],[-78.3,-0.1],[-77.8,-1.2],[-76.8,-2.2],[-75.5,-3.8],[-74.8,-6.1],[-74,-6.9],[-73.2,-7.3],[-73,-8.4],[-72.1,-9.5],[-70,-11],[-69.4,-10.9],[-68.7,-11.1],[-69.6,-12.4],[-69.4,-13.8],[-68.9,-14.2],[-69.4,-14.7],[-69.2,-16],[-68.7,-16.5],[-69.6,-17.3],[-70.4,-18.2],[-75.6,-16.4],[-76.9,-13.5],[-78.1,-10.7],[-79.4,-8.4],[-80.4,-8.1],[-81.3,-6.8],[-81.3,-4.2]])],
+
+  ['BO', poly([[-69.6,-17.3],[-68.7,-16.5],[-69.2,-16],[-69.4,-14.7],[-68.9,-14.2],[-69.4,-13.8],[-69.6,-12.4],[-68.7,-11.1],[-69.4,-10.9],[-70,-11],[-72.1,-9.5],[-73,-8.4],[-73.2,-7.3],[-74,-6.9],[-63.3,-9.3],[-60.4,-13.8],[-58.5,-16.3],[-58.2,-17.4],[-57.8,-18.1],[-57.8,-20],[-62.6,-22.1],[-64.5,-22.4],[-65.1,-22.2],[-66,-21.8],[-67.8,-22.9],[-68.2,-22.9],[-67.2,-24],[-68.2,-27.1],[-69,-29.7],[-69.6,-17.3]])],
+
+  ['CL', poly([[-69,-29.7],[-70.4,-18.2],[-69.6,-17.3],[-69,-29.7],[-70.5,-33.5],[-71.3,-36.5],[-71.4,-38],[-70.5,-42.5],[-69.6,-46.5],[-72,-50],[-72.5,-51],[-68.5,-54.5],[-65,-55.1],[-66.5,-55.9],[-68.5,-54.5],[-72,-53],[-75,-53],[-73,-46],[-72,-42],[-71.5,-38],[-70.5,-33.5]])],
+
+  ['PY', poly([[-62.6,-22.1],[-57.8,-20],[-57.8,-18.1],[-58.2,-17.4],[-58.5,-16.3],[-60.4,-13.8],[-63.3,-9.3],[-62.6,-22.1]])],
+
+  ['UY', poly([[-58.4,-32],[-57.8,-30.8],[-56.2,-30.1],[-53.4,-32.6],[-53.4,-33.8],[-58.4,-32]])],
+
+  ['EC', poly([[-80.1,-2.3],[-80,-0.4],[-79.6,-0.6],[-78.9,0.2],[-78.3,-0.1],[-77.8,-1.2],[-76.8,-2.2],[-75.5,-3.8],[-75.6,-4.5],[-76.4,-4.9],[-78.2,-4.8],[-80.1,-3],[-80.1,-2.3]])],
+
+  ['GY', poly([[-59.8,8.3],[-60.1,7.1],[-60.5,5.2],[-60.9,4.7],[-61.3,4.1],[-61.9,4.4],[-62.5,4.2],[-63.3,5.7],[-63.9,5.8],[-64.3,6.2],[-64.4,7.4],[-63.3,7.6],[-62.5,7.7],[-61.5,8.6],[-59.8,8.3]])],
+
+  // ── EUROPE ──────────────────────────────────────────────
+  ['GB', poly([[-5.7,50],[0,50.8],[1.7,51.4],[1.6,52.9],[-0.1,53.8],[-2.8,56],[-2.1,57.2],[-3.1,58.7],[-5.2,58.7],[-6.2,58.1],[-5,57.8],[-2.8,56],[-1.8,55.2],[-2,54.3],[-3.1,53.6],[-3.1,53],[-4,52.8],[-5,51.5],[-5.7,50]])],
+
+  ['FR', poly([[2.1,51.1],[6.1,49.5],[7.6,48],[8,46.5],[6.8,46.9],[6.4,45],[7.7,43.5],[7.4,43.9],[3,43.5],[0.3,42.8],[-1.8,43.3],[-1.8,44.2],[-2.9,47.2],[-4.8,47.7],[-4.4,48.7],[-2.3,49.3],[-0.3,49.7],[1.8,50.7],[2.1,51.1]])],
+
+  ['ES', poly([[-9.2,43.9],[-8.2,43.4],[-4.3,43.8],[0.2,42.8],[3,43.5],[3.4,40.3],[1.2,38.8],[0.2,39.1],[-0.4,38],[-1,37.2],[-2.1,36.8],[-5.3,36.1],[-7.4,37.1],[-7.7,37.5],[-8.8,41.9],[-9.2,43.9]])],
+
+  ['PT', poly([[-9.5,42.1],[-8.8,41.9],[-7.7,37.5],[-7.4,37.1],[-6.8,37.2],[-7.5,38.9],[-8.2,38.6],[-9.1,39],[-9.5,38.5],[-8.8,37.9],[-8.3,37.2],[-7.4,37.1],[-7.7,37.5],[-8.8,41.9],[-9.5,42.1]])],
+
+  ['DE', poly([[6.1,51.5],[7.2,52.6],[8.7,53.5],[9.9,54.8],[12.4,54.6],[14.3,54.1],[14.8,51.0],[15.3,50.8],[12.6,48.5],[13.8,48.5],[14.9,48.4],[12.5,47.7],[11.5,47.5],[8,47.7],[7.6,48],[6.1,49.5],[6.1,51.5]])],
+
+  ['IT', poly([[7.6,44],[13.7,44.4],[15.5,41.9],[16,41.2],[15.4,40.4],[16.2,39.6],[16.4,38.2],[15.5,37.5],[15.1,37.9],[12.4,38],[11.9,38.3],[15.5,41.9],[16.2,39.6],[16.4,38.2],[15.5,37.5],[15.1,37.9],[13.9,40.4],[12.5,41.5],[11.5,43.8],[9.5,44.2],[8.8,46],[7.6,44]])],
+
+  ['NL', poly([[3.4,51.4],[4.2,52],[5.4,52.9],[6.4,53.5],[7.2,53.3],[7,52.4],[6.1,51.5],[4.2,51],[3.4,51.4]])],
+
+  ['BE', poly([[2.6,50.8],[6.1,50.8],[6,49.5],[5.7,49.5],[4.9,49.8],[4.2,50.3],[3.4,50.3],[2.6,50.8]])],
+
+  ['CH', poly([[6.4,47.4],[8,47.7],[9.5,47.5],[10.4,47.3],[10.5,46.5],[9.5,46.2],[8.5,46],[7.3,45.7],[6.4,47.4]])],
+
+  ['AT', poly([[9.5,47.5],[16.9,48.6],[17.2,48.1],[17.1,47.8],[16.1,47.9],[15.8,47.7],[14.8,48.4],[13.8,48.5],[12.6,48.5],[10.4,47.3],[9.5,47.5]])],
+
+  ['SE', poly([[11.1,55.4],[12.6,55.9],[14.3,56.3],[16,57.4],[16.7,57.5],[17.7,57.8],[18.9,58],[18.4,58.8],[18.3,59.8],[18,60.6],[17.9,63],[17.6,64.5],[16.1,66],[16.6,67.6],[16.8,68.5],[18.7,68.9],[20.6,69.1],[23.5,68],[24.5,66],[24.3,65.5],[23.5,64.5],[24,63.8],[22.2,63.5],[20.8,62.8],[19.5,62.3],[18.9,61.5],[18.4,61.3],[17.6,61.5],[16.1,60.6],[15.5,59.4],[14.8,58.8],[13.3,57.5],[12.4,56.5],[12,56],[11.1,55.4]])],
+
+  ['NO', poly([[4.9,58.8],[5.2,59.2],[8,58.3],[10.3,59.1],[11,59.6],[11.6,59.4],[11.1,58.9],[12.2,56.2],[11.1,55.4],[12,56],[12.4,56.5],[13.3,57.5],[14.8,58.8],[15.5,59.4],[16.1,60.6],[17.6,61.5],[18.4,61.3],[18.9,61.5],[19.5,62.3],[20.8,62.8],[22.2,63.5],[24,63.8],[23.5,64.5],[24.3,65.5],[24.5,66],[23.5,68],[20.6,69.1],[18.7,68.9],[16.8,68.5],[16.6,67.6],[16.1,66],[17.6,64.5],[17.9,63],[18,60.6],[18.3,59.8],[18.4,58.8],[18.9,58],[17.7,57.8],[16.7,57.5],[16,57.4],[14.3,56.3],[12.6,55.9],[11.1,55.4],[12.2,56.2],[11.6,59.4],[11,59.6],[10.3,59.1],[8,58.3],[5.2,59.2],[4.9,58.8]])],
+
+  ['FI', poly([[27.8,70.1],[29.1,69.7],[30.1,69.5],[29.4,68.8],[30.5,68.2],[30.2,67.1],[28.4,66.8],[26.9,65.9],[27.7,65.1],[25.7,63.9],[26.1,63.3],[26,61.8],[25.4,60.6],[26.1,60],[27.5,60.1],[29.5,61.1],[31.6,62.9],[30.5,64.9],[29.4,68.8],[30.1,69.5],[29.1,69.7],[27.8,70.1]])],
+
+  ['DK', poly([[8.1,55.5],[10.3,57.7],[12.6,55.9],[11.1,55.4],[12.2,56.2],[10.3,59.1],[8,58.3],[5.2,59.2],[4.9,58.8],[8.1,55.5]])],
+
+  ['PL', poly([[14.3,54.1],[16.5,54.5],[19.9,54.5],[23.5,54.2],[23.6,52.8],[24.1,51.9],[23,50.6],[22.1,49.2],[19.8,49.4],[18.8,49.5],[17.8,50.1],[16.9,50.4],[14.8,51],[14.3,54.1]])],
+
+  ['UA', poly([[22.1,52.1],[24.1,51.9],[24.4,51],[26.2,51.9],[28,51.5],[29.4,51.6],[30.8,51.9],[33.8,52.3],[36.2,52.3],[37.4,52],[38.3,51.9],[39.2,51.3],[37.6,50.4],[36.6,50.3],[36.2,49.1],[34.2,48.1],[33.4,47.4],[34.1,46],[34,45.1],[33,44.3],[32,45.7],[31.2,46.8],[30.8,46.6],[30.4,45.8],[29,46],[28.1,45.5],[27.2,45.5],[26.6,46.2],[26.2,47.2],[24.7,47.8],[23.7,48.4],[22.7,48.1],[22.1,49.2],[22.1,52.1]])],
+
+  ['RO', poly([[22.1,48.4],[23.7,48.4],[24.7,47.8],[26.2,47.2],[26.6,46.2],[27.2,45.5],[28.1,45.5],[29.7,45.5],[30.4,45.8],[30.8,46.6],[31.2,46.8],[30,45.1],[29,44.8],[27.7,44],[26.6,43.6],[25.9,43.6],[22.7,44],[22.4,44.7],[22.7,45.2],[22.5,45.8],[22.1,48.4]])],
+
+  ['HU', poly([[16.1,48.1],[17.2,48.1],[18.7,47.8],[20.5,48.3],[22.1,49.2],[22.7,48.1],[22.5,45.8],[22.7,45.2],[22.4,44.7],[20.3,46.2],[19.1,46.2],[18.8,45.8],[17.5,45.9],[16.5,46.5],[16.1,46.9],[16.1,48.1]])],
+
+  ['CZ', poly([[12.6,50.3],[14.8,51],[16.9,50.4],[18.8,49.5],[18.2,49.1],[16.1,48.6],[15.6,48.8],[15,49.2],[13,48.9],[12.5,49.7],[12.6,50.3]])],
+
+  ['GR', poly([[26.3,41.7],[26.8,40.8],[25.9,40.3],[23.6,40.7],[23.1,40.5],[22.8,40.2],[22.9,39.8],[21.9,39],[22.4,37.9],[23.4,38.2],[24.5,37.7],[25.1,37.3],[22.3,37],[21.5,38.3],[21.5,39.1],[20.3,38.8],[20.5,40.2],[21.9,40.4],[22.8,40.2],[23.1,40.5],[23.6,40.7],[25.9,40.3],[26.8,40.8],[26.3,41.7]])],
+
+  ['TR', poly([[26.3,41.7],[28.3,41.1],[29.9,41.1],[31.1,41.7],[34.1,41.5],[36.9,41.8],[38.2,37],[36.9,36.7],[36.2,36.9],[35.5,36.5],[34.6,36.8],[33.4,36.1],[32.4,36.5],[29.7,36.3],[26.8,37],[26.3,38.4],[27.6,40.1],[26.3,40.5],[26.3,41.7]])],
+
+  ['RU', poly([[27.4,71.8],[34,70.2],[37.3,69.8],[40.9,68.9],[54.7,68.6],[68.5,69.1],[78.8,70.8],[102.7,72.4],[130,72],[140,72],[162,71],[163,60],[159,52],[145,45],[136,48],[131.5,43.5],[132.3,47.7],[134,48],[135.5,48.4],[138,47.5],[140.9,46.5],[141,46],[135,42],[134.5,43.5],[131.5,43.5],[130.6,42.3],[128,47.7],[127.5,49.6],[124.5,51.6],[119.8,53],[115,53.3],[109.5,53.4],[103.3,52.4],[100.6,50],[98.4,51.8],[94.9,52.4],[91.8,50.6],[89.4,49.9],[87.5,49.2],[83.1,51],[79.5,51.5],[78,53.5],[74.2,53.4],[68.5,54.4],[65.2,51.3],[61.4,50.8],[59,52.5],[58.4,56.5],[57,57],[55.4,55.5],[54.5,53.4],[52,51.7],[50,51.3],[48.4,54.1],[46.5,53.4],[44.5,50.5],[42.5,47],[40.5,43],[38.5,47.1],[37.3,47.5],[37.4,52],[36.2,52.3],[33.8,52.3],[30.8,51.9],[29.4,51.6],[28,51.5],[26.2,51.9],[24.4,51],[24.1,51.9],[23.6,52.8],[23.5,54.2],[19.9,54.5],[16.5,54.5],[14.3,54.1],[16.9,57],[18,59.8],[19,63],[20,67],[22,68.5],[27.4,71.8]])],
+
+  // ── AFRICA ──────────────────────────────────────────────
+  ['MA', poly([[-5.9,35.9],[-1.8,35.2],[1.6,35.7],[2.9,35.5],[2.2,34.9],[1.8,32.5],[-1.2,27.6],[-4.2,22.6],[-8.7,27.7],[-8.7,28.7],[-13.2,27.7],[-17.1,20.8],[-17,23.7],[-13.2,27.7],[-8.7,28.7],[-8.7,27.7],[-4.2,22.6],[-1.2,27.6],[1.8,32.5],[2.2,34.9],[2.9,35.5],[1.6,35.7],[-1.8,35.2],[-5.9,35.9]])],
+
+  ['DZ', poly([[1.6,37],[8.5,37],[9.1,37.3],[8.3,36.9],[7.5,36.9],[3,37],[1.6,37]])],
+
+  ['LY', poly([[9.5,33.2],[11.4,33.2],[13.6,33],[14.3,22],[20.2,24],[24.5,22],[25,22],[24.8,19.5],[25.2,20.5],[25,22],[14.3,22],[13.6,33],[11.4,33.2],[9.5,33.2]])],
+
+  ['EG', poly([[25,31.6],[34.9,29.5],[34.5,27.9],[36.7,22],[36,22],[32.1,22],[28.5,22],[24.7,22],[24.8,20],[25,22],[34.5,27.9],[34.9,29.5],[34.5,31.1],[34.3,31.3],[32.1,31.5],[31.1,30.5],[29.9,31],[28.5,30.8],[27.2,31],[25,30.8],[25,31.6]])],
+
+  ['NG', poly([[2.7,6.6],[3.3,7],[4.7,7.5],[6.8,8.2],[8.5,8.4],[10.3,7.8],[12.2,8.6],[13.5,9.6],[14.4,11.4],[14.9,12.2],[14.5,13.1],[13.8,13.7],[13.2,14.2],[13.6,15.5],[14.6,15.6],[15.1,13.3],[14.9,12.2],[14.4,11.4],[13.5,9.6],[12.2,8.6],[10.3,7.8],[8.5,8.4],[6.8,8.2],[4.7,7.5],[3.3,7],[2.7,6.6]])],
+
+  ['GH', poly([[-3.2,11.1],[1.3,11.1],[1.2,8.8],[1.6,6.9],[0.8,5.9],[0,5.4],[-0.7,5.1],[-1.2,5.2],[-2.8,5.1],[-3.2,5.4],[-2.4,8.2],[-2.6,9.5],[-2.8,10.3],[-3.2,11.1]])],
+
+  ['CI', poly([[-8.4,10.9],[-3.2,11.1],[-2.8,10.3],[-2.6,9.5],[-2.4,8.2],[-3.2,5.4],[-4.3,5.2],[-5.3,5],[-6.4,5.8],[-7.6,5.2],[-8.4,5.6],[-8,6.5],[-8.2,7.5],[-8,8.5],[-8.4,10.9]])],
+
+  ['SN', poly([[-17.5,14.7],[-16.7,15.1],[-15,16.6],[-12.2,14.8],[-11.4,15.6],[-10.7,15.5],[-10.3,13.7],[-12,12.3],[-13.7,11.6],[-15.8,11.3],[-16.7,12.3],[-17.4,13.6],[-17.5,14.7]])],
+
+  ['CM', poly([[8.5,5.1],[9.2,3.7],[10,2.3],[10.6,2.1],[11.4,2.2],[12.6,2.5],[14.6,4.2],[14.9,6.1],[15.1,8.2],[14.6,9.8],[13.8,10.5],[13.5,9.6],[12.2,8.6],[10.3,7.8],[8.5,8.4],[8.5,5.1]])],
+
+  ['SD', poly([[22,22],[25,22],[25,20],[25,18.5],[36.7,22],[34.5,27.9],[36.9,22],[36,22],[37,18],[37.2,15.5],[36.5,14.3],[37.9,12],[37.5,11],[36.2,10],[34.5,9.2],[33.9,9.6],[33.4,10.3],[33.5,12.2],[32.1,11.9],[30.9,9.8],[29.7,7.1],[27,5.8],[26.1,5.5],[24,5.3],[23.8,6],[23.6,7.6],[22.9,10.9],[21.9,12.2],[20.6,14.8],[17.4,19.8],[15.7,19.8],[15.5,21.4],[16.5,23.5],[17,25],[19.1,26.9],[22,22]])],
+
+  ['ET', poly([[33.5,14],[35.5,14.6],[37,14.2],[37.9,12],[36.5,14.3],[37.2,15.5],[37,18],[36,22],[36.7,22],[36,22],[37.2,15.5],[37.5,11],[36.2,10],[34.5,9.2],[34,11.4],[33.5,12.2],[33.4,10.3],[33.9,9.6],[34.5,9.2],[33.9,9.6],[33.5,12.2],[32.1,11.9],[30.9,9.8],[34.5,9.2],[36.2,10],[34.5,9.2],[33.5,9.2],[31.5,8.5],[30.5,7.8],[29.7,7.1],[33.9,9.6],[34.5,9.2],[33.5,14]])],
+
+  ['KE', poly([[34,4.2],[34.6,4],[36.7,4.5],[38,3.7],[40.4,4.3],[41.6,3.9],[41.9,3],[41.5,1.5],[40.4,-1.2],[37.4,-1.5],[34.3,-0.4],[34.1,1.1],[34,4.2]])],
+
+  ['TZ', poly([[34.3,-0.4],[37.4,-1.5],[40.4,-1.2],[40.5,-3],[40.2,-4.8],[39.8,-4.9],[39,-5.7],[37.4,-8.5],[36.5,-10.5],[35.3,-8.3],[34.8,-8.3],[34,-9.7],[33,-9.6],[32.5,-9],[31.9,-9],[30.8,-8],[30.3,-7.2],[30.4,-6.2],[29.6,-4.4],[30.5,-2],[31.9,-1],[34.1,1.1],[34.3,-0.4]])],
+
+  ['MZ', poly([[34.7,-11.6],[35.3,-11.6],[36.5,-12.5],[36.7,-14.4],[34.5,-16.1],[33.6,-16.4],[33,-16.9],[32.7,-18.1],[32.9,-19.7],[32.5,-20.2],[31.7,-22.3],[32.2,-24],[33,-26.3],[34.7,-26.9],[35.5,-26.7],[36.5,-25.5],[35.1,-23],[35,-19.4],[34.8,-17.6],[34.5,-16.1],[36.7,-14.4],[36.5,-12.5],[35.3,-11.6],[34.7,-11.6]])],
+
+  ['ZA', poly([[17.1,-29],[18.6,-34.4],[20.4,-34.8],[22.2,-34.1],[24.5,-34],[26.9,-33.6],[28.3,-32.9],[29.9,-31.3],[31,-29.9],[32.2,-28.8],[32.8,-26.9],[31.9,-25.8],[31.1,-25.5],[30.4,-22.3],[29.4,-22.2],[29.1,-22.1],[27.3,-23.4],[26.9,-23],[25.3,-25.1],[24.5,-25.8],[22.8,-25.3],[20.6,-24.8],[20,-22],[19.2,-24.5],[18.5,-27.1],[17.1,-29]])],
+
+  ['AO', poly([[12,-5.4],[12.3,-6.1],[13.4,-5.9],[14.4,-6],[16,-5.8],[17.4,-5.8],[20,-4.5],[23.8,-4.4],[24,-6],[23.4,-6.9],[24,-8.8],[24,-11],[23.5,-11],[22.5,-11],[22,-12],[21.5,-13.2],[20.3,-14],[18.6,-15],[17.1,-15.7],[16,-15.9],[12.7,-17.2],[12.1,-17.2],[11.9,-17],[11.8,-15.8],[12.5,-14.5],[12.1,-13.7],[11.6,-12.1],[11.5,-10.9],[12,-5.4]])],
+
+  ['ZM', poly([[32.5,-9],[31.9,-9],[30.8,-8],[30.3,-7.2],[30.4,-6.2],[29.6,-4.4],[28.4,-4.5],[27.9,-3.5],[27,-3.6],[25.1,-5.1],[24,-8.8],[23.4,-6.9],[24,-6],[24,-8.8],[25.1,-5.1],[27,-3.6],[27.9,-3.5],[28.4,-4.5],[29.6,-4.4],[30.4,-6.2],[30.3,-7.2],[30.8,-8],[31.9,-9],[32.5,-9]])],
+
+  ['MG', poly([[49.1,-12.5],[50.5,-15.9],[50.2,-18.3],[49.7,-20.3],[47.3,-24.9],[43.9,-25.5],[44,-23],[45.2,-20.4],[46.3,-18.8],[44.7,-16.3],[43.8,-14],[44,-11.5],[46.9,-11.5],[48.3,-12.5],[49.1,-12.5]])],
+
+  // ── ASIA ────────────────────────────────────────────────
+  ['SA', poly([[36.9,29.5],[38.2,37],[38.8,37.4],[41.2,37.1],[44.1,37.4],[44.2,36.4],[43.4,34.7],[40.2,32],[39.2,32.2],[37.8,30.5],[37.5,29.3],[37.5,28.5],[39,24.1],[38.4,23.1],[37,22.6],[36.7,22],[34.5,27.9],[34.9,29.5],[36.9,29.5]])],
+
+  ['IR', poly([[44.8,39.7],[47.8,40.2],[50.2,40.6],[53.8,37.9],[56.2,37.2],[58,37.6],[58.4,36.7],[57.3,36.2],[56.1,34.5],[55,34.1],[53.4,33.3],[52.5,32.3],[49.7,31.4],[49.1,31.7],[48.8,30.3],[48,29.9],[47.2,30.3],[47.1,31.7],[47.6,33.1],[46.2,34.9],[45.5,35.8],[45.5,37.4],[44.8,39.7]])],
+
+  ['IQ', poly([[38.8,37.4],[41.2,37.1],[44.1,37.4],[44.2,36.4],[43.4,34.7],[40.2,32],[39.2,32.2],[37.8,30.5],[41.9,31],[45.6,30.5],[47.1,31.7],[47.6,33.1],[46.2,34.9],[45.5,35.8],[45.5,37.4],[44.8,39.7],[43.9,37.9],[42.8,37.4],[41.4,37.2],[38.8,37.4]])],
+
+  ['SY', poly([[35.7,37.1],[36.9,37.9],[38.8,37.4],[41.4,37.2],[42.8,37.4],[41.8,36.6],[40.9,37],[38.7,36.7],[37.8,36.3],[36.6,36.2],[35.7,36.7],[35.7,37.1]])],
+
+  ['TR', poly([[26.3,41.7],[28.3,41.1],[29.9,41.1],[31.1,41.7],[34.1,41.5],[36.9,41.8],[38.2,37],[36.9,37.9],[35.7,37.1],[35.7,36.7],[36.6,36.2],[37.8,36.3],[38.7,36.7],[40.9,37],[41.8,36.6],[42.8,37.4],[43.9,37.9],[44.8,39.7],[44.1,37.4],[44.2,36.4],[43.4,34.7],[40.2,32],[39.2,32.2],[37.8,30.5],[36.9,29.5],[36.9,29.5],[34.9,29.5],[34.5,31.1],[34.3,31.3],[32.1,31.5],[31.1,30.5],[29.9,31],[28.5,30.8],[27.2,31],[25,30.8],[25,31.6],[34,31.6],[32.8,35.1],[36.1,36.2],[35.7,36.7],[36.6,36.2],[37.8,36.3],[38.7,36.7],[40.9,37],[38.2,37],[36.9,41.8],[34.1,41.5],[31.1,41.7],[29.9,41.1],[28.3,41.1],[26.3,41.7]])],
+
+  ['CN', poly([[87.3,49.2],[89.4,49.9],[91.8,50.6],[94.9,52.4],[98.4,51.8],[100.6,50],[103.3,52.4],[109.5,53.4],[115,53.3],[119.8,53],[122.5,52.3],[124.5,51.6],[127.5,49.6],[128,47.7],[130,47.5],[131.2,43.4],[130.7,42.8],[130,42.7],[129,41.7],[128.9,38.1],[125.7,40.1],[124.5,40.7],[124.3,42],[123,42.7],[122.1,41.7],[120,40.8],[118.6,38.8],[117,38.4],[116.1,36.1],[114.8,30.5],[113,29.5],[111.8,27.5],[110.5,25],[108.6,21.6],[108.8,19.9],[110.5,20],[112,21.5],[110.5,20],[108.8,19.9],[107.2,21.2],[104.4,22.7],[103.8,22.6],[102.2,22.5],[101.7,21.8],[100.4,21.5],[101.7,21.8],[102.2,22.5],[103.8,22.6],[104.4,22.7],[107.2,21.2],[108.8,19.9],[110.5,20],[112,21.5],[114.2,22.3],[114.8,22.5],[114.2,22.3],[112,21.5],[110.5,20],[108.6,21.6],[110.5,25],[111.8,27.5],[113,29.5],[114.8,30.5],[116.1,36.1],[117,38.4],[118.6,38.8],[120,40.8],[122.1,41.7],[123,42.7],[124.3,42],[124.5,40.7],[125.7,40.1],[128.9,38.1],[129,41.7],[130,42.7],[130.7,42.8],[128,47.7],[124.5,51.6],[119.8,53],[115,53.3],[109.5,53.4],[103.3,52.4],[100.6,50],[98.4,51.8],[94.9,52.4],[91.8,50.6],[89.4,49.9],[87.3,49.2],[83.1,51],[79.5,51.5],[78,53.5],[74.2,53.4],[68.5,54.4],[65.2,51.3],[61.4,50.8],[59,52.5],[58.4,56.5],[57,57],[55.4,55.5],[54.5,53.4],[52,51.7],[50,51.3],[48.4,54.1],[46.5,53.4],[50.6,44.6],[51.5,40.7],[52.5,41.9],[52.8,44.5],[57.7,46],[60.2,43.1],[61,41.3],[63.1,43.6],[64.4,43.6],[65.5,41.8],[66.5,41.4],[68.2,40.1],[68.8,40.4],[70.7,41.5],[71,39.4],[71.6,39.4],[72.2,39.1],[73.5,39.4],[74.7,38.6],[76.7,35.5],[77.8,35.6],[78.9,34.3],[78.7,32],[77,30.4],[75.3,32.5],[74.3,34.4],[73.7,36],[71.6,36.9],[70.9,38],[70.3,37.6],[70.7,41.5],[68.8,40.4],[68.2,40.1],[66.5,41.4],[65.5,41.8],[64.4,43.6],[63.1,43.6],[61,41.3],[60.2,43.1],[57.7,46],[52.8,44.5],[52.5,41.9],[51.5,40.7],[50.6,44.6],[46.5,53.4],[50,51.3],[52,51.7],[54.5,53.4],[55.4,55.5],[57,57],[58.4,56.5],[59,52.5],[61.4,50.8],[65.2,51.3],[68.5,54.4],[74.2,53.4],[78,53.5],[79.5,51.5],[83.1,51],[87.3,49.2]])],
+
+  ['IN', poly([[66.9,23.1],[70.3,22.9],[72.3,22.3],[72.6,21.5],[72.9,20.2],[74.2,20.6],[76.8,15.8],[77.8,8.4],[80.1,9.5],[80,13.5],[80.3,13.8],[79.9,15.4],[80.3,15.8],[80.5,16.2],[82.2,16.5],[82.6,17.5],[83.4,18],[83.5,20.7],[85.3,19.7],[86.4,20],[87.2,21],[88.2,23.5],[88.4,24],[89.5,22.8],[91.8,24],[92.4,24.5],[93.2,24.2],[94.5,22.1],[93.4,22],[93.2,24.2],[92.4,24.5],[91.8,24],[89.5,22.8],[88.4,24],[88.2,23.5],[87.2,21],[86.4,20],[85.3,19.7],[83.5,20.7],[83.4,18],[82.6,17.5],[82.2,16.5],[80.5,16.2],[80.3,15.8],[79.9,15.4],[80.3,13.8],[80,13.5],[80.1,9.5],[77.8,8.4],[76.8,15.8],[74.2,20.6],[72.9,20.2],[72.6,21.5],[72.3,22.3],[70.3,22.9],[66.9,23.1],[68.2,23.7],[68.9,25.8],[70.3,25.8],[70.5,27.5],[70.1,29.3],[72,30.4],[73.8,30.6],[74.4,31.5],[76.3,31.8],[76.5,34.6],[74,35.3],[73.7,36],[71.6,36.9],[70.9,38],[70.3,37.6],[68.7,37.2],[68.2,40.1],[66.5,41.4],[65.5,41.8],[64.4,43.6],[63.1,43.6],[61,41.3],[60.2,43.1],[57.7,46],[52.8,44.5],[52.5,41.9],[51.5,40.7],[50.6,44.6],[46.5,53.4],[44.5,50.5],[42.5,47],[40.5,43],[38.5,47.1],[37.3,47.5],[37.4,52],[36.2,52.3],[33.8,52.3],[30.8,51.9],[29.4,51.6],[28,51.5],[26.2,51.9],[24.4,51],[24.1,51.9],[23.6,52.8],[23.5,54.2],[19.9,54.5],[16.5,54.5],[14.3,54.1],[16.9,57],[18,59.8],[19,63],[20,67],[22,68.5],[27.4,71.8],[34,70.2],[37.3,69.8],[40.9,68.9],[54.7,68.6],[68.5,69.1],[78.8,70.8],[102.7,72.4],[130,72],[140,72],[162,71],[163,60],[159,52],[145,45],[136,48],[131.5,43.5],[130.6,42.3],[128,47.7],[127.5,49.6],[124.5,51.6],[119.8,53],[115,53.3],[109.5,53.4],[103.3,52.4],[100.6,50],[98.4,51.8],[94.9,52.4],[91.8,50.6],[89.4,49.9],[87.3,49.2],[83.1,51],[79.5,51.5],[78,53.5],[74.2,53.4],[68.5,54.4],[65.2,51.3],[61.4,50.8],[59,52.5],[58.4,56.5],[57,57],[55.4,55.5],[54.5,53.4],[52,51.7],[50,51.3],[48.4,54.1],[46.5,53.4],[44.5,50.5],[42.5,47],[40.5,43],[38.5,47.1],[37.3,47.5],[36.2,52.3],[33.8,52.3],[30.8,51.9],[29.4,51.6],[28,51.5],[26.2,51.9],[24.4,51],[24.1,51.9],[23.6,52.8],[23.5,54.2],[19.9,54.5],[16.5,54.5],[14.3,54.1],[12.6,50.3],[14.8,51],[16.9,50.4],[18.8,49.5],[19.8,49.4],[22.1,49.2],[22.7,48.1],[22.5,45.8],[22.7,45.2],[22.4,44.7],[22.7,44],[25.9,43.6],[26.6,43.6],[27.7,44],[29,44.8],[30,45.1],[31.2,46.8],[30.8,46.6],[30.4,45.8],[29,46],[28.1,45.5],[27.2,45.5],[26.6,46.2],[26.2,47.2],[24.7,47.8],[23.7,48.4],[22.1,48.4],[22.5,45.8],[22.7,45.2],[22.4,44.7],[20.3,46.2],[19.1,46.2],[18.8,45.8],[17.5,45.9],[16.5,46.5],[16.1,46.9],[16.1,48.1],[17.2,48.1],[18.7,47.8],[20.5,48.3],[22.1,49.2],[22.7,48.1],[22.5,45.8],[22.7,45.2],[22.4,44.7],[22.7,44],[25.9,43.6],[26.6,43.6],[27.7,44],[29,44.8],[30,45.1],[31.2,46.8],[30.4,45.8],[29,46],[28.1,45.5],[27.2,45.5],[26.6,46.2],[26.2,47.2],[24.7,47.8],[23.7,48.4],[22.1,48.4],[22.5,45.8],[22.7,45.2],[22.4,44.7],[20.3,46.2],[19.1,46.2],[18.8,45.8],[17.5,45.9],[16.5,46.5],[16.1,46.9],[16.1,48.1],[17.2,48.1],[18.7,47.8],[20.5,48.3],[22.1,49.2],[23.7,48.4],[24.7,47.8],[26.2,47.2],[26.6,46.2],[27.2,45.5],[28.1,45.5],[29,46],[30.4,45.8],[30.8,46.6],[31.2,46.8],[30,45.1],[29,44.8],[27.7,44],[26.6,43.6],[25.9,43.6],[22.7,44],[22.4,44.7],[22.7,45.2],[22.5,45.8],[22.7,48.1],[22.1,49.2],[22.1,52.1],[24.1,51.9],[24.4,51],[26.2,51.9],[28,51.5],[29.4,51.6],[30.8,51.9],[33.8,52.3],[36.2,52.3],[37.4,52],[37.3,47.5],[38.5,47.1],[40.5,43],[42.5,47],[44.5,50.5],[46.5,53.4],[48.4,54.1],[50,51.3],[52,51.7],[54.5,53.4],[55.4,55.5],[57,57],[58.4,56.5],[59,52.5],[61.4,50.8],[65.2,51.3],[68.5,54.4],[74.2,53.4],[78,53.5],[79.5,51.5],[83.1,51],[87.3,49.2],[87.5,49.2],[89.4,49.9],[91.8,50.6],[94.9,52.4],[98.4,51.8],[100.6,50],[103.3,52.4],[109.5,53.4],[115,53.3],[119.8,53],[124.5,51.6],[127.5,49.6],[128,47.7],[130.6,42.3],[131.5,43.5],[136,48],[145,45],[159,52],[163,60],[162,71],[140,72],[130,72],[102.7,72.4],[78.8,70.8],[68.5,69.1],[54.7,68.6],[40.9,68.9],[37.3,69.8],[34,70.2],[27.4,71.8],[22,68.5],[20,67],[19,63],[18,59.8],[16.9,57],[14.3,54.1],[16.5,54.5],[19.9,54.5],[23.5,54.2],[23.6,52.8],[24.1,51.9],[22.1,52.1],[22.1,49.2],[23.7,48.4],[24.7,47.8],[26.2,47.2],[26.6,46.2],[27.2,45.5],[28.1,45.5],[29,46],[30.4,45.8],[30.8,46.6],[31.2,46.8],[29,44.8],[27.7,44],[26.6,43.6],[25.9,43.6],[22.7,44],[22.4,44.7],[22.7,45.2],[22.5,45.8],[22.7,48.1],[22.1,49.2],[19.8,49.4],[18.8,49.5],[16.9,50.4],[14.8,51],[12.6,50.3],[13,48.9],[15,49.2],[15.6,48.8],[16.1,48.6],[18.2,49.1],[18.8,49.5],[20.5,48.3],[18.7,47.8],[17.2,48.1],[16.1,48.1],[16.1,46.9],[16.5,46.5],[17.5,45.9],[18.8,45.8],[19.1,46.2],[20.3,46.2],[22.4,44.7],[22.7,44],[25.9,43.6],[26.6,43.6],[27.7,44],[29,44.8],[30,45.1],[31.2,46.8],[30.8,46.6],[30.4,45.8],[29,46],[28.1,45.5],[27.2,45.5],[26.6,46.2],[26.2,47.2],[24.7,47.8],[23.7,48.4],[22.1,48.4],[22.5,45.8],[22.7,45.2],[22.4,44.7],[20.3,46.2],[19.1,46.2],[18.8,45.8],[17.5,45.9],[16.5,46.5],[16.1,46.9],[16.1,48.1],[9.5,47.5],[10.4,47.3],[10.5,46.5],[9.5,46.2],[8.5,46],[7.3,45.7],[6.4,47.4],[8,47.7],[9.5,47.5],[10.4,47.3],[10.5,46.5],[9.5,46.2],[8.5,46],[7.3,45.7],[6.4,47.4],[8,47.7],[9.5,47.5],[12.6,48.5],[13.8,48.5],[14.9,48.4],[12.5,47.7],[11.5,47.5],[8,47.7],[7.6,48],[6.1,49.5],[6.1,51.5],[7.2,52.6],[8.7,53.5],[9.9,54.8],[12.4,54.6],[14.3,54.1],[14.8,51],[15.3,50.8],[12.6,48.5],[13.8,48.5],[14.9,48.4],[12.5,47.7],[11.5,47.5],[8,47.7],[7.6,48],[8.8,46],[9.5,44.2],[11.5,43.8],[12.5,41.5],[13.9,40.4],[15.5,41.9],[16.2,39.6],[16.4,38.2],[15.5,37.5],[15.1,37.9],[12.4,38],[11.9,38.3],[9.5,44.2],[8.8,46],[7.6,44],[13.7,44.4],[15.5,41.9],[16,41.2],[15.4,40.4],[16.2,39.6],[16.4,38.2],[15.5,37.5],[15.1,37.9],[13.9,40.4],[12.5,41.5],[11.5,43.8],[66.9,23.1]])],
+
+  ['PK', poly([[60.9,29.3],[62,29.5],[63.2,27.2],[63.3,26.3],[64.7,23.8],[66.7,22.2],[66.9,23.1],[68.2,23.7],[68.9,25.8],[70.3,25.8],[70.5,27.5],[70.1,29.3],[72,30.4],[73.8,30.6],[74.4,31.5],[76.3,31.8],[76.5,34.6],[74,35.3],[73.7,36],[71.6,36.9],[70.9,38],[70.3,37.6],[70.7,41.5],[71,39.4],[71.6,39.4],[72.2,39.1],[73.5,39.4],[74.7,38.6],[76.7,35.5],[74,35.3],[76.3,31.8],[74.4,31.5],[73.8,30.6],[72,30.4],[70.1,29.3],[70.5,27.5],[70.3,25.8],[68.9,25.8],[68.2,23.7],[66.9,23.1],[66.7,22.2],[64.7,23.8],[63.3,26.3],[63.2,27.2],[62,29.5],[60.9,29.3]])],
+
+  ['AF', poly([[61.1,35.5],[62.2,35.2],[63.2,35.9],[64.5,36.3],[65.8,37.3],[67.8,37.2],[69.2,37.2],[70.9,38],[71.6,36.9],[73.7,36],[74,35.3],[76.3,31.8],[74.4,31.5],[73.8,30.6],[72,30.4],[70.1,29.3],[70.5,27.5],[70.3,25.8],[68.9,25.8],[68.2,23.7],[66.9,23.1],[66.7,22.2],[64.7,23.8],[63.3,26.3],[63.2,27.2],[62,29.5],[60.9,29.3],[60.5,30.3],[60.7,31.9],[61.1,35.5]])],
+
+  ['KZ', poly([[50.6,44.6],[52.5,41.9],[51.5,40.7],[50.6,44.6],[54.5,53.4],[55.4,55.5],[57,57],[58.4,56.5],[59,52.5],[61.4,50.8],[65.2,51.3],[68.5,54.4],[74.2,53.4],[78,53.5],[79.5,51.5],[83.1,51],[87.3,49.2],[83.1,51],[79.5,51.5],[78,53.5],[74.2,53.4],[68.5,54.4],[65.2,51.3],[61.4,50.8],[59,52.5],[58.4,56.5],[57,57],[55.4,55.5],[54.5,53.4],[52,51.7],[50,51.3],[48.4,54.1],[46.5,53.4],[44.5,50.5],[42.5,47],[40.5,43],[50.6,44.6]])],
+
+  ['UZ', poly([[56,41.3],[58.6,42.5],[61,42.6],[63.1,43.6],[64.4,43.6],[65.5,41.8],[66.5,41.4],[68.2,40.1],[67.8,37.2],[65.8,37.3],[64.5,36.3],[63.2,35.9],[62.2,35.2],[61.1,35.5],[59.9,37.5],[58.6,38.1],[56,41.3]])],
+
+  ['NP', poly([[80.5,28.6],[81,27.9],[82,28],[83.3,27.4],[84,27.5],[85.7,27.9],[86.7,27.9],[88,27.9],[88.4,27.4],[87.2,27.1],[85.7,27.9],[83.3,27.4],[82,28],[81,27.9],[80.5,28.6]])],
+
+  ['MM', poly([[100.1,20.4],[98.7,20.2],[98.2,19.7],[97.8,18.9],[97,18.5],[97.2,17.1],[97.5,15.5],[96.2,15.5],[95.3,15.4],[94.7,16.5],[95.4,18.3],[97,18.5],[97.8,18.9],[98.2,19.7],[98.7,20.2],[100.1,20.4],[100.4,21.5],[101.7,21.8],[100.4,21.5],[100.1,20.4]])],
+
+  ['VN', poly([[104.4,22.7],[103.8,22.6],[102.2,22.5],[101.7,21.8],[100.4,21.5],[100.1,20.4],[98.7,20.2],[97.8,18.9],[97.2,17.1],[97.5,15.5],[96.2,15.5],[95.3,15.4],[94.7,16.5],[95.4,18.3],[97,18.5],[97.2,17.1],[97.5,15.5],[96.2,15.5],[95.3,15.4],[94.7,16.5],[95.4,18.3],[97,18.5],[97.8,18.9],[98.2,19.7],[98.7,20.2],[100.1,20.4],[100.4,21.5],[101.7,21.8],[102.2,22.5],[103.8,22.6],[104.4,22.7],[107.2,21.2],[108.1,17.9],[108.5,15.5],[108.5,13.9],[107.5,10.5],[106.7,10],[104.9,10.3],[104.1,10.5],[104.4,10.9],[105.6,11.1],[106.7,10],[107.5,10.5],[108.5,13.9],[108.5,15.5],[108.1,17.9],[107.2,21.2],[104.4,22.7]])],
+
+  ['TH', poly([[98.2,5.7],[101.1,6.2],[103,5.4],[103.3,4.9],[103.4,3.9],[103.6,3.1],[102.1,4.2],[101.4,5.4],[99.4,6.4],[100.1,8.1],[100,9.9],[100.4,10.9],[101.6,12.7],[102.3,13.5],[103.9,13.9],[104.8,14.4],[105.2,14.5],[104.4,15.6],[103.3,15.5],[103.1,16.2],[102.6,18.2],[101.7,18.7],[101.1,19.6],[100.4,21.5],[98.7,20.2],[98.2,19.7],[97.8,18.9],[97,18.5],[97.2,17.1],[97.5,15.5],[96.2,15.5],[95.3,15.4],[94.7,16.5],[97,18.5],[97.8,18.9],[98.2,19.7],[98.7,20.2],[100.4,21.5],[101.1,19.6],[101.7,18.7],[102.6,18.2],[103.1,16.2],[103.3,15.5],[104.4,15.6],[105.2,14.5],[104.8,14.4],[103.9,13.9],[102.3,13.5],[101.6,12.7],[100.4,10.9],[100,9.9],[100.1,8.1],[99.4,6.4],[101.4,5.4],[102.1,4.2],[103.6,3.1],[103.4,3.9],[103.3,4.9],[103,5.4],[101.1,6.2],[98.2,5.7]])],
+
+  ['MY', poly([[103.3,4.9],[103.4,3.9],[103.6,3.1],[102.1,4.2],[101.4,5.4],[99.4,6.4],[100.1,8.1],[100,9.9],[100.4,10.9],[101.6,12.7],[102.3,13.5],[103.9,13.9],[104.8,14.4],[103.9,13.9],[102.3,13.5],[101.6,12.7],[100.4,10.9],[100,9.9],[100.1,8.1],[99.4,6.4],[101.4,5.4],[102.1,4.2],[103.6,3.1],[103.3,4.9]])],
+
+  ['PH', poly([[122,18.5],[124,18.2],[124.5,17.5],[122.5,17],[121.5,18],[122,18.5]])],
+
+  ['KR', poly([[126.1,38.3],[127.1,38.6],[129,37.8],[129.5,35.9],[128.3,35.5],[127.6,35.1],[126.6,35.3],[125.6,37.4],[126.1,38.3]])],
+
+  ['ID', poly([[95.3,5.4],[97.5,5.2],[100.3,2.2],[103.7,1.2],[103.9,1.5],[104.5,1.7],[104.2,0.7],[103,0.3],[102.1,-0.2],[101.6,-2],[101.2,-3.8],[100.1,-4],[99,-3.7],[97.3,-3.6],[96.2,-2.3],[95.6,-0.5],[95.3,1.5],[95.3,5.4]])],
+
+  // ── OCEANIA ───────────────────────────────────────────────
+  ['AU', poly([[115.6,-33.6],[117,-35.1],[121,-33.8],[123.8,-33.6],[126.8,-33.9],[129,-33.7],[131.4,-31.5],[131.3,-29.5],[130.4,-24.1],[130.8,-20.3],[133.7,-14.6],[134,-12.6],[135.8,-14.9],[136.5,-13.6],[136.3,-15.9],[135.8,-14.9],[134,-12.6],[135.6,-10.9],[136.8,-11.9],[138,-11.5],[139.6,-12.4],[140,-17],[141.1,-20],[141.6,-26.3],[140.8,-29.6],[141,-33.9],[140,-33.7],[138.2,-34.7],[137.4,-35.1],[136.1,-35.7],[134.7,-35.9],[133.8,-35.6],[132.5,-34.3],[131,-33.6],[130,-33.9],[129,-33.7],[126.8,-33.9],[123.8,-33.6],[121,-33.8],[117,-35.1],[115.6,-33.6]])],
+
+  ['NZ', poly([[173.9,-39.8],[175.6,-37.4],[176,-37.6],[177.5,-38],[178,-37.6],[177.8,-36.8],[174.8,-36.7],[174.4,-36.2],[173.8,-35.1],[172.7,-34.4],[172.8,-36],[172.3,-38],[173.9,-39.8]])],
+
+  ['PG', poly([[141,-6.8],[143.5,-6.5],[145.8,-5.8],[148.5,-5.6],[150,-6],[152,-6.5],[150,-8],[148.5,-9.5],[145.5,-10.5],[143,-10],[141,-9],[141,-6.8]])],
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════════════════════════
+const S = {
   g:(k,d)=>{try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},
-  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
 };
-const hs=()=>S.g('gq_hs',0);
-const setHs=n=>S.s('gq_hs',n);
-const getSnd=()=>S.g('gq_snd',true);
-const setSnd=v=>S.s('gq_snd',v);
-const getTheme=()=>S.g('gq_theme','light');
-const setTheme=t=>S.s('gq_theme',t);
+let curHs = S.g('gq_hs',0);
+let sndOn = S.g('gq_snd',true);
+const saveHs = n => { curHs=n; S.s('gq_hs',n); };
 
-// ── SOUND ──────────────────────────────────────────────────
-let sndOn=getSnd(),audioCtx=null;
-const ac=()=>{if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch{}return audioCtx};
-const playTone=(freqs,type='sine',dur=.15,vol=.14)=>{
-  if(!sndOn)return;const c=ac();if(!c)return;const t=c.currentTime;
-  freqs.forEach((f,i)=>{
-    const o=c.createOscillator(),g=c.createGain();
-    o.connect(g);g.connect(c.destination);o.type=type;
-    o.frequency.setValueAtTime(f,t+i*.06);
-    g.gain.setValueAtTime(vol,t+i*.06);
-    g.gain.exponentialRampToValueAtTime(.001,t+i*.06+dur);
-    o.start(t+i*.06);o.stop(t+i*.06+dur+.05);
-  });
+// ═══════════════════════════════════════════════════════════════
+//  SOUND
+// ═══════════════════════════════════════════════════════════════
+let actx = null;
+const ac = () => { if(!actx) try{ actx=new(window.AudioContext||window.webkitAudioContext)() }catch{} return actx; };
+const tone = (freqs,type='sine',dur=.15,vol=.13) => {
+  if(!sndOn) return; const c=ac(); if(!c) return; const t=c.currentTime;
+  freqs.forEach((f,i)=>{ const o=c.createOscillator(),g=c.createGain(); o.connect(g); g.connect(c.destination); o.type=type; o.frequency.setValueAtTime(f,t+i*.06); g.gain.setValueAtTime(vol,t+i*.06); g.gain.exponentialRampToValueAtTime(.001,t+i*.06+dur); o.start(t+i*.06); o.stop(t+i*.06+dur+.05); });
 };
-const Snd={
-  correct:()=>playTone([523,659,784],'triangle',.2,.17),
-  wrong:()=>playTone([330,277],'sawtooth',.18,.12),
-  click:()=>playTone([880],'sine',.06,.07),
-  start:()=>playTone([262,330,392,523],'triangle',.18,.14),
-  victory:()=>playTone([523,659,784,1047],'triangle',.25,.18),
-  tick:()=>playTone([440],'square',.07,.06),
-};
+const Snd = { correct:()=>tone([523,659,784],'triangle',.2,.16), wrong:()=>tone([330,277],'sawtooth',.18,.12), click:()=>tone([880],'sine',.06,.07), start:()=>tone([262,330,392,523],'triangle',.18,.14), victory:()=>tone([523,659,784,1047],'triangle',.25,.18), tick:()=>tone([440],'square',.07,.06) };
 
-// ── CONFETTI ──────────────────────────────────────────────
-const CVSC=document.getElementById('confetti');
-const CVSX=CVSC.getContext('2d');
-let cParts=[],cRaf=null;
+// ═══════════════════════════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════════════════════════
+const cv=document.getElementById('confetti'),cx=cv.getContext('2d');
+let cp=[],cr=null;
+const cr_=()=>{cv.width=innerWidth;cv.height=innerHeight};
+addEventListener('resize',cr_);cr_();
 const COLS=['#007AFF','#34C759','#FF9500','#FF3B30','#AF52DE','#5AC8FA','#FFD60A'];
-const cResize=()=>{CVSC.width=innerWidth;CVSC.height=innerHeight};
-addEventListener('resize',cResize);cResize();
-const mkP=()=>({x:Math.random()*CVSC.width,y:-10,r:Math.random()*6+3,vx:(Math.random()-.5)*3,vy:Math.random()*3+2,color:COLS[Math.floor(Math.random()*COLS.length)],angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.2,rect:Math.random()>.5,alpha:1});
-const cLoop=()=>{
-  CVSX.clearRect(0,0,CVSC.width,CVSC.height);
-  cParts=cParts.filter(p=>p.alpha>.05);
-  cParts.forEach(p=>{
-    p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.angle+=p.spin;
-    if(p.y>CVSC.height*.7)p.alpha-=.02;
-    CVSX.save();CVSX.globalAlpha=p.alpha;CVSX.translate(p.x,p.y);CVSX.rotate(p.angle);CVSX.fillStyle=p.color;
-    if(p.rect)CVSX.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.5);
-    else{CVSX.beginPath();CVSX.arc(0,0,p.r/2,0,Math.PI*2);CVSX.fill();}
-    CVSX.restore();
-  });
-  if(cParts.length)cRaf=requestAnimationFrame(cLoop);
-  else{CVSX.clearRect(0,0,CVSC.width,CVSC.height);cRaf=null;}
-};
-const burstConfetti=(n=120)=>{for(let i=0;i<n;i++)setTimeout(()=>cParts.push(mkP()),i*12);if(!cRaf)cLoop();};
-const stopConfetti=()=>{cParts=[];if(cRaf){cancelAnimationFrame(cRaf);cRaf=null;}CVSX.clearRect(0,0,CVSC.width,CVSC.height);};
+const mkc=()=>({x:Math.random()*cv.width,y:-10,r:Math.random()*6+3,vx:(Math.random()-.5)*3,vy:Math.random()*3+2,color:COLS[Math.floor(Math.random()*COLS.length)],angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.2,rect:Math.random()>.5,alpha:1});
+const cloop=()=>{ cx.clearRect(0,0,cv.width,cv.height); cp=cp.filter(p=>p.alpha>.05); cp.forEach(p=>{ p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.angle+=p.spin; if(p.y>cv.height*.7)p.alpha-=.02; cx.save();cx.globalAlpha=p.alpha;cx.translate(p.x,p.y);cx.rotate(p.angle);cx.fillStyle=p.color; if(p.rect)cx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.5); else{cx.beginPath();cx.arc(0,0,p.r/2,0,Math.PI*2);cx.fill();} cx.restore(); }); if(cp.length)cr=requestAnimationFrame(cloop); else{cx.clearRect(0,0,cv.width,cv.height);cr=null;} };
+const burst=(n=120)=>{for(let i=0;i<n;i++)setTimeout(()=>cp.push(mkc()),i*12);if(!cr)cloop();};
+const stopConf=()=>{cp=[];if(cr){cancelAnimationFrame(cr);cr=null;}cx.clearRect(0,0,cv.width,cv.height);};
 
-// ── MAP ──────────────────────────────────────────────────
-const svg=document.getElementById('map-svg');
-const mapInner=document.getElementById('map-inner');
-let mScale=1,mOx=0,mOy=0,mDrag=false,mDs={x:0,y:0};
-let mapClickCb=null;
+// ═══════════════════════════════════════════════════════════════
+//  MAP
+// ═══════════════════════════════════════════════════════════════
+const theMap = document.getElementById('the-map');
+const mapBox  = document.getElementById('map-box');
+let msc=1, mox=0, moy=0, mdrag=false, mds={x:0,y:0};
+let mapCb = null;
 
-// Build SVG
-const ns='http://www.w3.org/2000/svg';
-const bg=document.createElementNS(ns,'rect');
-bg.setAttribute('width','1010');bg.setAttribute('height','500');bg.setAttribute('fill','var(--map-ocean)');bg.style.cursor='default';
-svg.appendChild(bg);
-PATHS.forEach(([id,d])=>{
-  const p=document.createElementNS(ns,'path');
-  p.setAttribute('d',d);p.dataset.id=id;
+// Build ocean background
+const ns = 'http://www.w3.org/2000/svg';
+const ocean = document.createElementNS(ns,'rect');
+ocean.setAttribute('width','2000');ocean.setAttribute('height','1000');
+ocean.setAttribute('class','ocean-bg');ocean.style.cursor='default';
+theMap.appendChild(ocean);
+
+// Build country paths
+const pathEls = new Map();
+MAP_PATHS.forEach(([id,d])=>{
+  const p = document.createElementNS(ns,'path');
+  p.setAttribute('d',d);
+  p.setAttribute('class','country');
+  p.setAttribute('data-id',id);
   p.setAttribute('tabindex','0');
   p.setAttribute('aria-label',(CMAP.get(id)||{name:id}).name);
-  svg.appendChild(p);
+  theMap.appendChild(p);
+  pathEls.set(id,p);
 });
 
-const mApply=()=>svg.style.transform=`translate(${mOx}px,${mOy}px) scale(${mScale})`;
+// Also build paths for countries without game data (greyed out decoration)
+// Map transform
+const mApply=()=>theMap.style.transform=`translate(${mox}px,${moy}px) scale(${msc})`;
 const mClamp=()=>{
-  const mx=mapInner.clientWidth*(mScale-1)/2+80;
-  const my=mapInner.clientHeight*(mScale-1)/2+80;
-  mOx=Math.max(-mx,Math.min(mx,mOx));mOy=Math.max(-my,Math.min(my,mOy));
+  const bw=mapBox.clientWidth, bh=mapBox.clientHeight;
+  const sw=bw*msc, sh=bh*msc;
+  const maxX=Math.max(0,(sw-bw)/2+100), maxY=Math.max(0,(sh-bh)/2+100);
+  mox=Math.max(-maxX,Math.min(maxX,mox));
+  moy=Math.max(-maxY,Math.min(maxY,moy));
 };
-svg.addEventListener('click',e=>{const p=e.target.closest('[data-id]');if(p&&mapClickCb){Snd.click();mapClickCb(p.dataset.id);}});
-svg.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset.id){e.preventDefault();Snd.click();if(mapClickCb)mapClickCb(e.target.dataset.id);}});
-mapInner.addEventListener('pointerdown',e=>{if(e.target.closest('[data-id]'))return;mDrag=true;mDs={x:e.clientX-mOx,y:e.clientY-mOy};mapInner.setPointerCapture(e.pointerId);});
-mapInner.addEventListener('pointermove',e=>{if(!mDrag)return;mOx=e.clientX-mDs.x;mOy=e.clientY-mDs.y;mClamp();mApply();});
-mapInner.addEventListener('pointerup',()=>mDrag=false);
-mapInner.addEventListener('pointercancel',()=>mDrag=false);
-mapInner.addEventListener('wheel',e=>{e.preventDefault();mScale=Math.max(.8,Math.min(4,mScale*(e.deltaY>0?.9:1.1)));mClamp();mApply();},{passive:false});
-document.getElementById('z-in').onclick=()=>{mScale=Math.min(4,mScale*1.25);mClamp();mApply();};
-document.getElementById('z-out').onclick=()=>{mScale=Math.max(.8,mScale*.8);mClamp();mApply();};
-document.getElementById('z-reset').onclick=()=>{mScale=1;mOx=0;mOy=0;mApply();};
-const clearMap=()=>svg.querySelectorAll('[data-id]').forEach(p=>p.className='');
-const markMap=(id,cls)=>{const p=svg.querySelector(`[data-id="${id}"]`);if(p){p.className='';p.classList.add(cls);}};
 
-// ── UI HELPERS ────────────────────────────────────────────
+// Click / keyboard on map paths
+theMap.addEventListener('click',e=>{
+  const p=e.target.closest('[data-id]');
+  if(p&&mapCb){ Snd.click(); mapCb(p.getAttribute('data-id')); }
+});
+theMap.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.getAttribute('data-id')){
+    e.preventDefault(); Snd.click();
+    if(mapCb) mapCb(e.target.getAttribute('data-id'));
+  }
+});
+
+// Drag / pan
+mapBox.addEventListener('pointerdown',e=>{
+  if(e.target.closest('[data-id]')) return;
+  mdrag=true; mds={x:e.clientX-mox,y:e.clientY-moy};
+  mapBox.setPointerCapture(e.pointerId);
+});
+mapBox.addEventListener('pointermove',e=>{
+  if(!mdrag) return;
+  mox=e.clientX-mds.x; moy=e.clientY-mds.y;
+  mClamp(); mApply();
+});
+mapBox.addEventListener('pointerup',()=>mdrag=false);
+mapBox.addEventListener('pointercancel',()=>mdrag=false);
+mapBox.addEventListener('wheel',e=>{
+  e.preventDefault();
+  msc=Math.max(.6,Math.min(5,msc*(e.deltaY>0?.9:1.12)));
+  mClamp(); mApply();
+},{passive:false});
+
+document.getElementById('zi').onclick=()=>{msc=Math.min(5,msc*1.3);mClamp();mApply();};
+document.getElementById('zo').onclick=()=>{msc=Math.max(.6,msc*.77);mClamp();mApply();};
+document.getElementById('zr').onclick=()=>{msc=1;mox=0;moy=0;mApply();};
+
+// Highlight helpers
+const clearMap=()=>{ pathEls.forEach(p=>p.setAttribute('class','country')); };
+const markMap=(id,cls)=>{
+  const p=pathEls.get(id);
+  if(p) p.setAttribute('class',`country ${cls}`);
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════════════════════
 const $=id=>document.getElementById(id);
 let toastT=null;
 const showToast=(type,msg)=>{
   clearTimeout(toastT);
-  const t=$('toast');t.className=`toast show ${type}`;
-  $('toast-icon').textContent=type==='correct'?'✅':'❌';
-  $('toast-txt').textContent=msg;
-  toastT=setTimeout(()=>t.className='toast',1800);
+  const t=$('toast'); t.className=`toast show ${type}`;
+  $('ti').textContent=type==='correct'?'✅':'❌';
+  $('tt').textContent=msg;
+  toastT=setTimeout(()=>t.className='toast',2000);
 };
 const setTimerUI=(s,max)=>{
-  const fg=$('timer-fg');
-  fg.style.strokeDashoffset=106.8*(1-s/max);
-  $('timer-txt').textContent=s;
-  fg.className='timer-fg'+(s/max<=.25?' danger':s/max<=.5?' warn':'');
-  if(s<=5&&s>0)Snd.tick();
+  const fg=$('t-fg');
+  fg.style.strokeDashoffset=113.1*(1-s/max);
+  $('t-num').textContent=s;
+  const r=s/max;
+  fg.setAttribute('class','t-fg'+(r<=.25?' danger':r<=.5?' warn':''));
+  if(s<=5&&s>0) Snd.tick();
 };
 
-// ── GAME ─────────────────────────────────────────────────
-let score=0,round=0,rounds=[],diff='easy',history=[],timerSec=0,timerMax=15,timerID=null,current=null,curHs=hs();
-const MAX=10,TMAX={easy:20,medium:15,hard:10};
+// ═══════════════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════════════
+let score=0, round=0, rounds=[], diff='easy';
+let history=[], timerSec=0, timerMax=15, timerID=null, current=null;
+const MAX=10, TMAX={easy:20,medium:15,hard:10};
+
 const shuffle=a=>{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
-const pool=d=>{const t={easy:['easy'],medium:['easy','medium'],hard:['easy','medium','hard']}[d]||['easy'];return COUNTRIES.filter(c=>t.includes(c.diff));};
+const pool=d=>{const ts={easy:['easy'],medium:['easy','medium'],hard:['easy','medium','hard']}[d]||['easy']; return COUNTRIES.filter(c=>ts.includes(c.diff)&&pathEls.has(c.id));};
 
 const buildStreak=()=>{
-  const s=$('streak');s.innerHTML='';
+  const s=$('streak'); s.innerHTML='';
   for(let i=0;i<MAX;i++){const d=document.createElement('div');d.className='dot'+(i===0?' cur':'');s.appendChild(d);}
 };
 const markDot=(idx,type)=>{
-  const dots=$('streak').querySelectorAll('.dot');
-  if(dots[idx]){dots[idx].classList.remove('cur');dots[idx].className=`dot ${type}`;}
-  if(dots[idx+1])dots[idx+1].classList.add('cur');
+  const ds=$('streak').querySelectorAll('.dot');
+  if(ds[idx]){ds[idx].className=`dot ${type}`;}
+  if(ds[idx+1])ds[idx+1].classList.add('cur');
 };
+
 const stopTimer=()=>{clearInterval(timerID);timerID=null;};
 const startTimer=()=>{
-  stopTimer();timerSec=timerMax;setTimerUI(timerSec,timerMax);
+  stopTimer(); timerSec=timerMax; setTimerUI(timerSec,timerMax);
   timerID=setInterval(()=>{timerSec--;setTimerUI(timerSec,timerMax);if(timerSec<=0){stopTimer();onTimeout();}},1000);
 };
 
@@ -565,46 +718,57 @@ const nextRound=()=>{
   if(round>=MAX){endGame();return;}
   current=rounds[round];
   if(!current){round++;nextRound();return;}
-  const el=$('prompt-name');
+  // Update prompt – force animation restart
+  const el=$('prompt-country');
   el.style.animation='none';
-  requestAnimationFrame(()=>{el.style.animation='';el.textContent=current.name;});
+  void el.offsetHeight; // reflow to restart animation
+  el.style.animation='';
+  el.textContent=current.name;
   $('prompt-hint').textContent='';
-  $('nav-round').textContent=`${round+1}/${MAX}`;
-  $('prog-fill').style.width=`${(round/MAX)*100}%`;
-  clearMap();startTimer();
+  $('v-round').textContent=`${round+1}/${MAX}`;
+  $('prog-bar').style.width=`${(round/MAX)*100}%`;
+  clearMap();
+  startTimer();
 };
 
 const resolve=(ok,msg)=>{
-  stopTimer();history.push(ok?'correct':'wrong');markDot(round,ok?'correct':'wrong');
-  if(ok){score++;const sv=$('nav-score');sv.textContent=score;sv.classList.remove('bump');requestAnimationFrame(()=>sv.classList.add('bump'));}
+  stopTimer();
+  history.push(ok?'correct':'wrong');
+  markDot(round,ok?'correct':'wrong');
+  if(ok){
+    score++;
+    const sv=$('v-score'); sv.textContent=score;
+    sv.classList.remove('bump'); void sv.offsetWidth; sv.classList.add('bump');
+  }
   showToast(ok?'correct':'wrong',msg);
-  if(ok)markMap(current.id,'correct');
-  else{markMap(current.id,'wrong');setTimeout(()=>markMap(current.id,'target'),500);}
-  ok?Snd.correct():Snd.wrong();
-  round++;setTimeout(()=>{clearMap();nextRound();},1800);
+  if(ok){ markMap(current.id,'hit-correct'); Snd.correct(); }
+  else  { markMap(current.id,'hit-wrong'); setTimeout(()=>markMap(current.id,'hit-target'),500); Snd.wrong(); }
+  round++;
+  setTimeout(()=>{clearMap();nextRound();},1900);
 };
 
 const onTimeout=()=>{
-  history.push('wrong');markDot(round,'wrong');
-  if(current)markMap(current.id,'target');
+  history.push('wrong'); markDot(round,'wrong');
+  if(current) markMap(current.id,'hit-target');
   showToast('wrong',`⏰ Time's up! – ${current?.name||'?'}`);
-  Snd.wrong();round++;setTimeout(()=>{clearMap();nextRound();},1800);
+  Snd.wrong(); round++;
+  setTimeout(()=>{clearMap();nextRound();},1900);
 };
 
 const endGame=()=>{
   stopTimer();
-  if(score>curHs){curHs=score;setHs(curHs);}
-  $('hs-val').textContent=curHs;$('hs-display').textContent=curHs;
+  if(score>curHs) saveHs(score);
+  $('hs-v').textContent=curHs; $('s-hs').textContent=curHs;
   const correct=history.filter(r=>r==='correct').length;
-  $('final-score').textContent=score;
-  $('e-correct').textContent=correct;
-  $('e-wrong').textContent=MAX-correct;
+  $('r-score').textContent=score;
+  $('e-c').textContent=correct;
+  $('e-w').textContent=MAX-correct;
   $('e-hs').textContent=curHs;
   $('e-acc').textContent=Math.round(correct/MAX*100)+'%';
   setTimeout(()=>{
-    $('ring-fill').style.strokeDashoffset=326.7*(1-score/MAX);
-    $('ring-fill').style.stroke=score>=8?'var(--success)':score>=5?'var(--accent)':'var(--error)';
-  },200);
+    $('r-fill').style.strokeDashoffset=326.7*(1-score/MAX);
+    $('r-fill').style.stroke=score>=8?'var(--correct)':score>=5?'var(--accent)':'var(--wrong)';
+  },250);
   const msgs=[
     {min:10,e:'🏆',t:'Perfect Score!',  m:'You know the world inside out!'},
     {min:8, e:'⭐',t:'Excellent!',      m:'Incredible geography skills!'},
@@ -613,93 +777,135 @@ const endGame=()=>{
     {min:0, e:'🌱',t:'Keep Learning!',  m:'The world is vast — keep exploring!'},
   ];
   const r=msgs.find(m=>score>=m.min)||msgs[4];
-  $('end-emoji').textContent=r.e;$('end-title').textContent=r.t;$('end-msg').textContent=r.m;
-  const bd=$('badges');bd.innerHTML='';
-  const addBadge=(icon,label)=>{const b=document.createElement('div');b.className='badge';b.textContent=`${icon} ${label}`;bd.appendChild(b);};
-  if(score===10)addBadge('🏆','Perfect Score');
-  if(score>=8)addBadge('⭐','Expert');
-  let streak=0;for(const r of history){if(r==='correct'){streak++;if(streak>=3){addBadge('🔥','3 in a row');break;}}else streak=0;}
-  if(score===0)addBadge('😅','Keep Practicing');
-  $('end-screen').style.display='flex';
-  if(score===MAX){setTimeout(()=>burstConfetti(),300);Snd.victory();}
+  $('end-em').textContent=r.e; $('end-title').textContent=r.t; $('end-msg').textContent=r.m;
+  const bd=$('bdgs'); bd.innerHTML='';
+  const addB=(icon,label)=>{const b=document.createElement('div');b.className='bdg';b.textContent=`${icon} ${label}`;bd.appendChild(b);};
+  if(score===10) addB('🏆','Perfect Score');
+  if(score>=8)   addB('⭐','Expert');
+  let st=0; for(const rr of history){if(rr==='correct'){st++;if(st>=3){addB('🔥','3 in a row');break;}}else st=0;}
+  if(score===0)  addB('😅','Keep Practicing');
+  $('end-ov').style.display='flex';
+  if(score===MAX){setTimeout(()=>burst(),300);Snd.victory();}
 };
 
 const startGame=()=>{
-  stopConfetti();score=0;round=0;history=[];
+  stopConf(); score=0; round=0; history=[];
   timerMax=TMAX[diff]||15;
-  $('nav-score').textContent=0;$('nav-round').textContent=`1/${MAX}`;$('prog-fill').style.width='0';
-  $('hs-val').textContent=curHs;$('end-screen').style.display='none';$('start-screen').style.display='none';
-  $('ring-fill').style.strokeDashoffset='326.7';
-  clearMap();mScale=1;mOx=0;mOy=0;mApply();buildStreak();
-  const ids=new Set([...svg.querySelectorAll('[data-id]')].map(p=>p.dataset.id));
-  let p=shuffle(pool(diff)).filter(c=>ids.has(c.id));
-  rounds=p.slice(0,MAX);
-  if(rounds.length<MAX){const ex=shuffle(COUNTRIES).filter(c=>!rounds.includes(c)&&ids.has(c.id));rounds=[...rounds,...ex].slice(0,MAX);}
-  Snd.start();nextRound();
+  $('v-score').textContent=0; $('v-round').textContent=`1/${MAX}`; $('prog-bar').style.width='0';
+  $('hs-v').textContent=curHs; $('r-fill').style.strokeDashoffset='326.7';
+  $('end-ov').style.display='none'; $('start-ov').style.display='none';
+  clearMap(); msc=1; mox=0; moy=0; mApply();
+  buildStreak();
+  rounds=shuffle(pool(diff)).slice(0,MAX);
+  if(rounds.length<MAX){ const ex=shuffle(pool('hard')).filter(c=>!rounds.includes(c)); rounds=[...rounds,...ex].slice(0,MAX); }
+  Snd.start();
+  nextRound();
 };
 
-// ── WIRING ────────────────────────────────────────────────
-mapClickCb=id=>resolve(id===current?.id,id===current?.id?`✨ ${current.name}!`:`It was ${current?.name||'?'}`);
-$('start-btn').addEventListener('click',()=>{Snd.click();startGame();});
-$('again-btn').addEventListener('click',()=>{Snd.click();startGame();});
-$('skip-btn').addEventListener('click',()=>{
-  if(!current)return;Snd.click();stopTimer();
-  history.push('wrong');markDot(round,'wrong');
-  showToast('wrong',`Skipped – ${current.name}`);markMap(current.id,'target');Snd.wrong();
-  round++;setTimeout(()=>{clearMap();nextRound();},1800);
-});
-$('hint-btn').addEventListener('click',()=>{
-  if(!current)return;Snd.click();
+// ═══════════════════════════════════════════════════════════════
+//  WIRING
+// ═══════════════════════════════════════════════════════════════
+mapCb = id => resolve(id===current?.id, id===current?.id?`✨ ${current.name}!`:`It was ${current?.name||'?'}`);
+
+$('start-btn').onclick=()=>{ Snd.click(); startGame(); };
+$('again-btn').onclick=()=>{ Snd.click(); startGame(); };
+$('skip-btn').onclick=()=>{
+  if(!current)return; Snd.click(); stopTimer();
+  history.push('wrong'); markDot(round,'wrong');
+  showToast('wrong',`Skipped – ${current.name}`);
+  markMap(current.id,'hit-target'); Snd.wrong();
+  round++; setTimeout(()=>{clearMap();nextRound();},1900);
+};
+$('hint-btn').onclick=()=>{
+  if(!current)return; Snd.click();
   const h=current.hints;
-  $('prompt-hint').textContent=h&&h.length?`💡 ${h[0]}`:`💡 Capital: ${current.capital}`;
+  $('prompt-hint').textContent=h&&h.length?`💡 ${h[0]}`:`💡 Capital: ${current.cap}`;
+};
+$('share-btn').onclick=()=>{
+  const txt=`🌍 GeoQuest: I scored ${$('r-score').textContent}/10 on ${diff} mode! Can you beat me?`;
+  if(navigator.share) navigator.share({title:'GeoQuest',text:txt}).catch(()=>{});
+  else if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=>showToast('correct','Copied to clipboard!'));
+};
+
+// Difficulty – both start screen and in-game
+['start-drow','diff-pills'].forEach(rowId=>{
+  const row=document.getElementById(rowId);
+  if(!row)return;
+  row.addEventListener('click',e=>{
+    const b=e.target.closest('[data-d]');
+    if(!b)return;
+    diff=b.getAttribute('data-d');
+    Snd.click();
+    // update both rows
+    document.querySelectorAll('[data-d]').forEach(el=>{
+      el.classList.toggle('on',el.getAttribute('data-d')===diff);
+      el.classList.toggle('active',el.getAttribute('data-d')===diff);
+    });
+  });
 });
-$('share-btn').addEventListener('click',()=>{
-  const txt=`🌍 GeoQuest: I scored ${$('final-score').textContent}/10! Can you beat me?`;
-  if(navigator.share)navigator.share({title:'GeoQuest',text:txt}).catch(()=>{});
-  else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>showToast('correct','Copied!'));
-});
-$('diff-row').addEventListener('click',e=>{
-  const b=e.target.closest('.diff-btn');if(!b)return;
-  document.querySelectorAll('.diff-btn').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');diff=b.dataset.diff;Snd.click();
-});
-$('theme-btn').addEventListener('click',()=>{
+
+// Sound toggle
+$('snd-btn').onclick=()=>{
+  sndOn=!sndOn; S.s('gq_snd',sndOn);
+  $('snd-ic').innerHTML=sndOn
+    ?'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
+    :'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+};
+
+// Theme toggle
+$('theme-btn').onclick=()=>{
   const dark=document.documentElement.getAttribute('data-theme')==='dark';
   const t=dark?'light':'dark';
-  document.documentElement.setAttribute('data-theme',t);setTheme(t);
-  $('theme-icon').innerHTML=dark
+  document.documentElement.setAttribute('data-theme',t);
+  S.s('gq_theme',t);
+  $('theme-ic').innerHTML=dark
     ?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>'
     :'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-});
-$('snd-btn').addEventListener('click',()=>{
-  sndOn=!sndOn;setSnd(sndOn);
-  $('snd-icon').innerHTML=sndOn
-    ?'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
-    :'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
-});
+};
+
+// Keyboard shortcuts
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')$('skip-btn').click();
-  if(e.key==='h'||e.key==='H')$('hint-btn').click();
+  if(e.key==='Escape') $('skip-btn').click();
+  if(e.key==='h'||e.key==='H') $('hint-btn').click();
 });
 
-// ── INIT ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+//  BOOT  –  guaranteed to show app
+// ═══════════════════════════════════════════════════════════════
 (()=>{
-  // Apply saved theme
-  const t=getTheme();
+  // Restore theme
+  const t=S.g('gq_theme','light');
   document.documentElement.setAttribute('data-theme',t);
-  if(t==='dark')$('theme-icon').innerHTML='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-  if(!sndOn)$('snd-icon').innerHTML='<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
-  $('hs-display').textContent=curHs;$('hs-val').textContent=curHs;
+  if(t==='dark') $('theme-ic').innerHTML='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  if(!sndOn) $('snd-ic').innerHTML='<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+  $('s-hs').textContent=curHs;
+  $('hs-v').textContent=curHs;
+  $('s-count').textContent=COUNTRIES.length;
 
-  // Show app — simple and guaranteed
+  // Show app after brief load animation
   const fill=$('ld-fill');
-  fill.style.width='100%';
+  let p=0;
+  const interval=setInterval(()=>{
+    p+=Math.random()*30+15;
+    fill.style.width=Math.min(p,95)+'%';
+    if(p>=95){
+      clearInterval(interval);
+      fill.style.width='100%';
+      setTimeout(()=>{
+        $('loading').classList.add('out');
+        $('app').style.display='flex';
+        $('start-ov').style.display='flex';
+        setTimeout(()=>$('loading').style.display='none',500);
+      },300);
+    }
+  },80);
+
+  // Absolute failsafe – 4 seconds max
   setTimeout(()=>{
-    $('loading').classList.add('out');
+    $('loading').style.display='none';
     $('app').style.display='flex';
-    $('start-screen').style.display='flex';
-    setTimeout(()=>$('loading').style.display='none',400);
-  },500);
+    if($('start-ov').style.display==='none') $('start-ov').style.display='flex';
+  },4000);
 })();
 </script>
 </body>
